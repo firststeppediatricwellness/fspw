@@ -3121,6 +3121,18 @@ doc.addPage();
                     doc.text(`${arsInterpretation}`, 20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(), y);
                     doc.setTextColor(primaryBlue);
                     y += lineHeight * 3;
+                    doc.setFontSize(9);
+doc.setTextColor(primaryBlue);
+
+// Print category-wise scores below the main score
+doc.text(
+  `Categories: ${arsCategoryString}`,
+  20,
+  y
+);
+
+y += lineHeight * 2;
+
                 }
 
                 //doc.addPage();
