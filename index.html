@@ -3100,52 +3100,16 @@ y += lineHeight;
 doc.addPage();
                 y = 20;
 
-                
                 if (parseInt(personalData.age) >= 10 && parseInt(personalData.age) <= 19) {
-
-  y = drawTitleWithBackground("Adolescents Resilience Scale (ARS) Results", y);
-
-  doc.setFontSize(10);
-
-  // Score
-  doc.text(`Score: ${arsScore} - `, 20, y);
-
-  // Interpretation
-  doc.setTextColor(secondaryBlue);
-  doc.text(
-    `${arsInterpretation}`,
-    20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(),
-    y
-  );
-
-  doc.setTextColor(primaryBlue);
-
-  // Move down
-  y += lineHeight * 3;
-
-  // ---- CATEGORY SCORES (below score) ----
-  if (arsCategoryScores && Object.keys(arsCategoryScores).length > 0) {
-
-    doc.setFontSize(9);
-
-    const categoryText =
-      Object.entries(arsCategoryScores)
-        .map(([category, score]) => `${category}: ${score}`)
-        .join(", ");
-
-    // Wrap text safely to avoid overflow / crash
-    const wrappedCategories = doc.splitTextToSize(
-      `Categories: (${categoryText})`,
-      170
-    );
-
-    doc.text(wrappedCategories, 20, y);
-
-    y += wrappedCategories.length * lineHeight;
-  }
-}
-
-
+                    y = drawTitleWithBackground("Adolescents Resilience Scale (ARS) Results", y);
+                   // y += 5;
+                    doc.setFontSize(10);
+                    doc.text(`Score: ${arsScore} - `, 20, y);
+                    doc.setTextColor(secondaryBlue);
+                    doc.text(${arsInterpretation}, 20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(), y);
+                    doc.setTextColor(primaryBlue);
+                    y += lineHeight * 3;
+                        }
                 
                 //doc.addPage();
                 //y = 20;
