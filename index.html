@@ -2778,7 +2778,7 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
                   { id: 'aswb_q9', reverseScore: false }, { id: 'aswb_q10', reverseScore: false }, { id: 'aswb_q11', reverseScore: false }, { id: 'aswb_q12', reverseScore: false },
                 ];
                 aswbQuestions.forEach(q => {
-                  const score = qResponses[q.id];
+                  const score = Number(qResponses[q.id]);
                   if (score !== undefined) {
                     aswbScore += q.reverseScore ? (6 - score) : score;
                   }
@@ -2801,7 +2801,7 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
                     {id: 'ars_q46', reverseScore: false}, {id: 'ars_q47', reverseScore: false}, {id: 'ars_q48', reverseScore: false}, {id: 'ars_q49', reverseScore: false}, // Community Connectedness
                 ];
                 arsQuestions.forEach(q => {
-                  const score = qResponses[q.id];
+                  const score = Number(qResponses[q.id]);
                   if (score !== undefined) {
                     arsScore += q.reverseScore ? (6 - score) : score;
                   }
@@ -2813,7 +2813,7 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
 
                 let iatScore = 0;
                 for (let i = 1; i <= 20; i++) {
-                    const score = qResponses[`iat_q${i}`];
+                    const score = Number(qResponses[`iat_q${i}`]);
                     if (score !== undefined) {
                         iatScore += score;
                     }
