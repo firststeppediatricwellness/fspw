@@ -3121,17 +3121,17 @@ doc.addPage();
                     doc.text(`${arsInterpretation}`, 20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(), y);
                     doc.setTextColor(primaryBlue);
                     y += lineHeight * 3;
-                    doc.setFontSize(9);
+                   doc.setFontSize(9);
 doc.setTextColor(primaryBlue);
 
-// Print category-wise scores below the main score
-doc.text(
-  `Categories: ${arsCategoryString}`,
-  20,
-  y
-);
+const safeCategoryString = arsCategoryString
+  ? `Categories: ${arsCategoryString}`
+  : "Categories: (Category scores unavailable)";
 
-y += lineHeight * 2;
+const wrappedText = doc.splitTextToSize(safeCategoryString, 170);
+
+doc.text(wrappedText, 20, y);
+y += wrappedText.length * lineHeight;
 
                 }
 
