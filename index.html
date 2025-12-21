@@ -2787,20 +2787,8 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
 
                 let arsScore = 0;
                 const arsQuestions = [
-                    {id: 'ars_q1', reverseScore: false}, {id: 'ars_q2', reverseScore: false}, {id: 'ars_q3', reverseScore: false}, {id: 'ars_q4', reverseScore: false}, {id: 'ars_q5', reverseScore: false}, // Confidence
-                    {id: 'ars_q6', reverseScore: false}, {id: 'ars_q7', reverseScore: false}, {id: 'ars_q8', reverseScore: false}, {id: 'ars_q9', reverseScore: false}, // Emotional Insight
-                    {id: 'ars_q10', reverseScore: true}, {id: 'ars_q11', reverseScore: true}, {id: 'ars_q12', reverseScore: true}, {id: 'ars_q13', reverseScore: true}, {id: 'ars_q14', reverseScore: true}, // Negative Cognition
-                    {id: 'ars_q15', reverseScore: true}, {id: 'ars_q16', reverseScore: false}, {id: 'ars_q17', reverseScore: false}, {id: 'ars_q18', reverseScore: false}, // Social Skills
-                    {id: 'ars_q19', reverseScore: false}, {id: 'ars_q20', reverseScore: true}, {id: 'ars_q21', reverseScore: true}, {id: 'ars_q22', reverseScore: true}, // Empathy
-                    {id: 'ars_q23', reverseScore: false}, {id: 'ars_q24', reverseScore: false}, {id: 'ars_q25', reverseScore: false}, {id: 'ars_q26', reverseScore: false}, // Family Connectedness
-                    {id: 'ars_q27', reverseScore: false}, {id: 'ars_q28', reverseScore: false}, {id: 'ars_q29', reverseScore: false}, // Family Availability
-                    {id: 'ars_q30', reverseScore: false}, {id: 'ars_q31', reverseScore: false}, {id: 'ars_q32', reverseScore: false}, {id: 'ars_q33', reverseScore: false}, // Peers Connectedness
-                    {id: 'ars_q34', reverseScore: true}, {id: 'ars_q35', reverseScore: true}, {id: 'ars_q36', reverseScore: true}, {id: 'ars_q37', reverseScore: false}, // Peers Availability
-                    {id: 'ars_q38', reverseScore: false}, {id: 'ars_q39', reverseScore: false}, {id: 'ars_q40', reverseScore: false}, {id: 'ars_q41', reverseScore: false}, // School Supportive Environment
-                    {id: 'ars_q42', reverseScore: true}, {id: 'ars_q43', reverseScore: true}, {id: 'ars_q44', reverseScore: true}, {id: 'ars_q45', reverseScore: false}, // School Connectedness
-                    {id: 'ars_q46', reverseScore: false}, {id: 'ars_q47', reverseScore: false}, {id: 'ars_q48', reverseScore: false}, {id: 'ars_q49', reverseScore: false}, // Community Connectedness
-                ];
-                const arsCategories = {
+                  \               ];
+                conbt arsCategories = {
   "Confidence": ['ars_q1','ars_q2','ars_q3','ars_q4','ars_q5'],
   "Emotional Insight": ['ars_q6','ars_q7','ars_q8','ars_q9'],
   "Negative Cognition": ['ars_q10','ars_q11','ars_q12','ars_q13','ars_q14'],
@@ -3112,29 +3100,53 @@ y += lineHeight;
 doc.addPage();
                 y = 20;
 
+                
                 if (parseInt(personalData.age) >= 10 && parseInt(personalData.age) <= 19) {
-                    y = drawTitleWithBackground("Adolescents Resilience Scale (ARS) Results", y);
-                   // y += 5;
-                    doc.setFontSize(10);
-                    doc.text(`Score: ${arsScore} - `, 20, y);
-                    doc.setTextColor(secondaryBlue);
-                    doc.text(`${arsInterpretation}`, 20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(), y);
-                    doc.setTextColor(primaryBlue);
-                    y += lineHeight * 3;
-                   doc.setFontSize(9);
-doc.setTextColor(primaryBlue);
 
-const safeCategoryString = arsCategoryString
-  ? `Categories: ${arsCategoryString}`
-  : "Categories: (Category scores unavailable)";
+  y = drawTitleWithBackground("Adolescents Resilience Scale (ARS) Results", y);
 
-const wrappedText = doc.splitTextToSize(safeCategoryString, 170);
+  doc.setFontSize(10);
 
-doc.text(wrappedText, 20, y);
-y += wrappedText.length * lineHeight;
+  // Score
+  doc.text(`Score: ${arsScore} - `, 20, y);
 
-                }
+  // Interpretation
+  doc.setTextColor(secondaryBlue);
+  doc.text(
+    `${arsInterpretation}`,
+    20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(),
+    y
+  );
 
+  doc.setTextColor(primaryBlue);
+
+  // Move down
+  y += lineHeight * 3;
+
+  // ---- CATEGORY SCORES (below score) ----
+  if (arsCategoryScores && Object.keys(arsCategoryScores).length > 0) {
+
+    doc.setFontSize(9);
+
+    const categoryText =
+      Object.entries(arsCategoryScores)
+        .map(([category, score]) => `${category}: ${score}`)
+        .join(", ");
+
+    // Wrap text safely to avoid overflow / crash
+    const wrappedCategories = doc.splitTextToSize(
+      `Categories: (${categoryText})`,
+      170
+    );
+
+    doc.text(wrappedCategories, 20, y);
+
+    y += wrappedCategories.length * lineHeight;
+  }
+}
+
+
+                
                 //doc.addPage();
                 //y = 20;
 
