@@ -2800,6 +2800,20 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
                     {id: 'ars_q42', reverseScore: true}, {id: 'ars_q43', reverseScore: true}, {id: 'ars_q44', reverseScore: true}, {id: 'ars_q45', reverseScore: false}, // School Connectedness
                     {id: 'ars_q46', reverseScore: false}, {id: 'ars_q47', reverseScore: false}, {id: 'ars_q48', reverseScore: false}, {id: 'ars_q49', reverseScore: false}, // Community Connectedness
                 ];
+                const arsCategories = {
+  "Confidence": ['ars_q1','ars_q2','ars_q3','ars_q4','ars_q5'],
+  "Emotional Insight": ['ars_q6','ars_q7','ars_q8','ars_q9'],
+  "Negative Cognition": ['ars_q10','ars_q11','ars_q12','ars_q13','ars_q14'],
+  "Social Skills": ['ars_q15','ars_q16','ars_q17','ars_q18'],
+  "Empathy": ['ars_q19','ars_q20','ars_q21','ars_q22'],
+  "Family Connectedness": ['ars_q23','ars_q24','ars_q25','ars_q26'],
+  "Family Availability": ['ars_q27','ars_q28','ars_q29'],
+  "Peers Connectedness": ['ars_q30','ars_q31','ars_q32','ars_q33'],
+  "Peers Availability": ['ars_q34','ars_q35','ars_q36','ars_q37'],
+  "School Supportive Environment": ['ars_q38','ars_q39','ars_q40','ars_q41'],
+  "School Connectedness": ['ars_q42','ars_q43','ars_q44','ars_q45'],
+  "Community Connectedness": ['ars_q46','ars_q47','ars_q48','ars_q49']
+};
                 arsQuestions.forEach(q => {
                   const score = Number(qResponses[q.id]);
                   if (score !== undefined) {
@@ -2811,6 +2825,29 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
                 else if (arsScore >= 124) { arsInterpretation = 'Moderate Resilience'; }
                 else { arsInterpretation = 'Low Resilience'; }
 
+                let arsCategoryScores = {};
+
+for (const [category, questions] of Object.entries(arsCategories)) {
+  let categoryScore = 0;
+
+  questions.forEach(qId => {
+    const qObj = arsQuestions.find(q => q.id === qId);
+    const rawScore = Number(qResponses[qId]);
+
+    if (!isNaN(rawScore)) {
+      categoryScore += qObj.reverseScore ? (6 - rawScore) : rawScore;
+    }
+  });
+
+  arsCategoryScores[category] = categoryScore;
+}
+
+const arsCategoryString =
+  "(" +
+  Object.entries(arsCategoryScores)
+    .map(([category, score]) => `${category}: ${score}`)
+    .join(", ") +
+  ")";
                 let iatScore = 0;
                 for (let i = 1; i <= 20; i++) {
                     const score = Number(qResponses[`iat_q${i}`]);
@@ -2838,8 +2875,16 @@ personalHealthData.perfusionIndexInterpretation = perfusionIndexInterpretation;
                     arsResultSection = `
                     <div id="arsResult" class="category-section">
                         <h4 class="text-2xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-300">Adolescents Resilience (ARS) Results</h4>
-                        <p class="text-lg"><strong>Score:</strong> ${arsScore} - <span class="font-bold ${getInterpretationClass(arsInterpretation, 'Low Resilience')}">${arsInterpretation}</span></p>
-                    </div>`;
+<p class="text-lg flex flex-wrap items-center gap-2">
+  <strong>Score:</strong> ${arsScore}
+  <span class="font-bold ${getInterpretationClass(arsInterpretation, 'Low Resilience')}">
+    ${arsInterpretation}
+  </span>
+  <span class="text-sm text-gray-600">
+    ${arsCategoryString}
+  </span>
+</p>
+</div>`;
                 }
 
                 let arsInterpretationSection = '';
