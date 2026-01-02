@@ -1448,7 +1448,7 @@ Blogspot
 </div>
 <div class="text-center mt-8 text-sm">
 <p>Childhood moves fast, but its impact lasts forever, we’re here to make every fleeting moment a lasting strength for your child.</p>
-<p>&copy; 2024 First Step Pediatric Wellness. All Rights Reserved.</p>
+<p>&copy; 2025 FSPW Pvt. Ltd. (Reg No - U86904KA2025PTC212490)</p>
 </div>
 </footer>
 </div>
@@ -2690,8 +2690,8 @@ const bmi = personalHealthData.weightKg / (heightM * heightM);
 personalHealthData.bmi = parseFloat(bmi.toFixed(2));
 let bmiInterpretation = '';
 if (personalHealthData.bmi < 18.5) { bmiInterpretation = 'Underweight'; }
-else if (personalHealthData.bmi >= 18.5 && personalHealthData.bmi <= 24.9) { bmiInterpretation = 'Normal Range'; }
-else if (personalHealthData.bmi >= 25 && personalHealthData.bmi <= 29.9) { bmiInterpretation = 'Overweight'; }
+else if (personalHealthData.bmi >= 18.5 && personalHealthData.bmi <= 24.99) { bmiInterpretation = 'Normal Range'; }
+else if (personalHealthData.bmi >= 25 && personalHealthData.bmi <= 29.99) { bmiInterpretation = 'Overweight'; }
 else if (personalHealthData.bmi >= 30) { bmiInterpretation = 'Obese'; }
 personalHealthData.bmiInterpretation = bmiInterpretation;
 
@@ -2842,12 +2842,28 @@ categoryScore += qObj.reverseScore ? (6 - rawScore) : rawScore;
 arsCategoryScores[category] = categoryScore;
 }
 
+// Separate ARS category scores into individual variables
+const confidenceScore = arsCategoryScores["Confidence"] ?? 0;
+const emotionalInsightScore = arsCategoryScores["Emotional Insight"] ?? 0;
+const negativeCognitionScore = arsCategoryScores["Negative Cognition"] ?? 0;
+const socialSkillsScore = arsCategoryScores["Social Skills"] ?? 0;
+const empathyScore = arsCategoryScores["Empathy"] ?? 0;
+const familyConnectednessScore = arsCategoryScores["Family Connectedness"] ?? 0;
+const familyAvailabilityScore = arsCategoryScores["Family Availability"] ?? 0;
+const peersConnectednessScore = arsCategoryScores["Peers Connectedness"] ?? 0;
+const peersAvailabilityScore = arsCategoryScores["Peers Availability"] ?? 0;
+const schoolSupportiveEnvironmentScore = arsCategoryScores["School Supportive Environment"] ?? 0;
+const schoolConnectednessScore = arsCategoryScores["School Connectedness"] ?? 0;
+const communityConnectednessScore = arsCategoryScores["Community Connectedness"] ?? 0;
+
+
 const arsCategoryString =
-"(" +
-Object.entries(arsCategoryScores)
-.map(([category, score]) => `${category}: ${score}`)
-.join(", ") +
-")";
+  "(" +
+  Object.entries(arsCategoryScores)
+    .map(([category, score]) => `${category}: ${score}`)
+    .join(", ") +
+  ")";
+
 let iatScore = 0;
 for (let i = 1; i <= 20; i++) {
 const score = Number(qResponses[`iat_q${i}`]);
@@ -2911,9 +2927,17 @@ let reportHtml = `
                        <h3 class="text-center font-bold text-3xl text-gray-900 mb-6">First Step Pediatric Wellness Certificate</h3>
                        <h3 class="text-center text-sm mb-4">
  <span class="text-red-600">*</span>
- <span class="text-black">
-   Attention: Parents must download and print a copy of this certificate, review it carefully, sign it as acknowledgement, and ensure the student submits it to the class teacher without fail.
- </span>
+<span class="text-black">
+  Attention: Parents must download and print a copy of this certificate, review it carefully, sign it as acknowledgement, and ensure the student submits it to the class teacher without fail.
+  After verification, parents are also required to upload the signed certificate by
+  <a
+    href="https://docs.google.com/forms/d/e/1FAIpQLSdmFbibiFxqLTnhv60Axt6U73B495QpivbZ_I2Q6muLcgT7Ww/viewform"
+    target="_blank"
+    class="text-blue-600 font-semibold underline hover:text-blue-800"
+  >
+    clicking here
+  </a>.
+</span>
 </h3>
                        <div id="personalHealthOverviewSection" class="category-section mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
                            <h4 class="text-2xl font-semibold text-blue-800 mb-4 pb-2 border-b border-blue-300">Personal & Health Overview</h4>
@@ -2995,7 +3019,7 @@ let reportHtml = `
                        </div>
                    </div>
                `;
-resultsPage.innerHTML = reportHtml;
+resultsPage.innerHTML = reportHtml;6
 assessmentPage.classList.add('hidden');
 resultsPage.classList.remove('hidden');
 
@@ -3006,17 +3030,58 @@ landingPage.classList.remove('hidden');
 });
 
 // Add event listener for the new print button on the results page
-document.getElementById('printReportButton').addEventListener('click', function() {
-generatePdf(personalHealthData, aswbScore, aswbInterpretation, arsScore, arsInterpretation, iatScore, iatInterpretation);
+document.getElementById('printReportButton').addEventListener('click', function () {
+  generatePdf(
+    personalHealthData,
+    aswbScore,
+    aswbInterpretation,
+    arsScore,
+    arsInterpretation,
+    confidenceScore,
+    emotionalInsightScore,
+    negativeCognitionScore,
+    socialSkillsScore,
+    empathyScore,
+    familyConnectednessScore,
+    familyAvailabilityScore,
+    peersConnectednessScore,
+    peersAvailabilityScore,
+    schoolSupportiveEnvironmentScore,
+    schoolConnectednessScore,
+    communityConnectednessScore,
+    iatScore,
+    iatInterpretation
+  );
 });
 });
 
 
 
 // PDF Generation Logic (reverted to original, simple version)
-function generatePdf(personalData, aswbScore, aswbInterpretation, arsScore, arsInterpretation, iatScore, iatInterpretation) {
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
+//function generatePdf(personalData, aswbScore, aswbInterpretation, arsScore, arsInterpretation, iatScore, iatInterpretation) {
+function generatePdf(
+  personalData,
+  aswbScore,
+  aswbInterpretation,
+  arsScore,
+  arsInterpretation,
+  confidenceScore,
+  emotionalInsightScore,
+  negativeCognitionScore,
+  socialSkillsScore,
+  empathyScore,
+  familyConnectednessScore,
+  familyAvailabilityScore,
+  peersConnectednessScore,
+  peersAvailabilityScore,
+  schoolSupportiveEnvironmentScore,
+  schoolConnectednessScore,
+  communityConnectednessScore,
+  iatScore,
+  iatInterpretation
+) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
 let y = 20;
 const lineHeight = 7;
@@ -3112,7 +3177,8 @@ y += lineHeight * 3;
 doc.addPage();
 y = 20;
 
-if (parseInt(personalData.age) >= 10 && parseInt(personalData.age) <= 19) {
+if (parseInt(personalData.age) >= 10 && parseInt(personalData.age) <= 19) 
+{
 y = drawTitleWithBackground("Adolescents Resilience Scale (ARS) Results", y);
 // y += 5;
 doc.setFontSize(10);
@@ -3120,7 +3186,38 @@ doc.text(`Score: ${arsScore} - `, 20, y);
 doc.setTextColor(secondaryBlue);
 doc.text(`${arsInterpretation}`, 20 + doc.getStringUnitWidth(`Score: ${arsScore} - `) * doc.internal.getFontSize(), y);
 doc.setTextColor(primaryBlue);
-y += lineHeight * 3;
+y += lineHeight;
+
+// Individual ARS category scores
+ const col1 = 25;
+const col2 = 85;
+const col3 = 145;
+
+// Line 1
+doc.text(`• Confidence: ${confidenceScore}`, col1, y);
+doc.text(`• Emotional Insight: ${emotionalInsightScore}`, col2, y);
+doc.text(`• Negative Cognition: ${negativeCognitionScore}`, col3, y);
+y += lineHeight;
+
+// Line 2
+doc.text(`• Social Skills: ${socialSkillsScore}`, col1, y);
+doc.text(`• Empathy: ${empathyScore}`, col2, y);
+doc.text(`• Family Connectedness: ${familyConnectednessScore}`, col3, y);
+y += lineHeight;
+
+// Line 3
+doc.text(`• Family Availability: ${familyAvailabilityScore}`, col1, y);
+doc.text(`• Peers Connectedness: ${peersConnectednessScore}`, col2, y);
+doc.text(`• Peers Availability: ${peersAvailabilityScore}`, col3, y);
+y += lineHeight;
+
+// Line 4
+doc.text(`• School Supportive Env: ${schoolSupportiveEnvironmentScore}`, col1, y);
+doc.text(`• School Connectedness: ${schoolConnectednessScore}`, col2, y);
+doc.text(`• Community Connectedness: ${communityConnectednessScore}`, col3, y);
+y += lineHeight;
+
+  y += lineHeight ;
 
 }
 
@@ -3177,7 +3274,7 @@ doc.setTextColor(primaryBlue);
 text = doc.splitTextToSize(`Score Interpretation: 0 to 30 is Normal Internet Usage. 31 to 49 is Mild Addiction. 50 to 79 is Moderate Addiction. 80 to 100 is Severe Addiction, which requires professional evaluation.`, 170);
 doc.text(text, 20, y);
 y += text.length * 20;
-y += 10;
+y += 1.2;
 
 const pageWidth = doc.internal.pageSize.getWidth(); // get page width
 
