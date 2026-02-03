@@ -1,0 +1,115 @@
+{
+  "main": {
+    "id": "9bab6696d4e288ff",
+    "type": "split",
+    "children": [
+      {
+        "id": "f9a0886e6be80065",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "AnkiWeb Deck Description HTML.md",
+            "mode": "source"
+          }
+        },
+        "group": "2966fbd6c6fcd9a6"
+      },
+      {
+        "id": "c510929a99be7192",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "AnkiWeb Deck Description HTML.md",
+            "mode": "preview"
+          }
+        },
+        "group": "2966fbd6c6fcd9a6"
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "4ab5a7f7bfca63bb",
+    "type": "split",
+    "children": [
+      {
+        "id": "17471992633583ce",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4073bb332ccd0d05",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "e7d615dec4186548",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "3fba856e6a28cd4b",
+    "type": "split",
+    "children": [
+      {
+        "id": "7db58f49e4b348d2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "853dc3303e0ee456",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "AnkiWeb Deck Description HTML.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "c510929a99be7192",
+  "lastOpenFiles": [
+    "AnkiWeb Deck Description HTML.md",
+    "README.md",
+    "GitHub Release Format.md",
+    "Commands for Cleaning up JSON.md",
+    "Anki Deck Description HTML.md",
+    "Untitled.md",
+    "Commands for cleaning deck.md",
+    "ankisrs.net.md",
+    "Ultimate Geography.md",
+    "Anki Deck Description.md"
+  ]
+}

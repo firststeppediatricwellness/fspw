@@ -1,0 +1,11 @@
+{
+  "trashOption": "system",
+  "promptDelete": false,
+  "alwaysUpdateLinks": true,
+  "useMarkdownLinks": true,
+  "showUnsupportedFiles": true,
+  "newLinkFormat": "relative",
+  "spellcheck": true,
+  "defaultViewMode": "source",
+  "livePreview": false
+}
