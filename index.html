@@ -4492,7 +4492,14 @@
 
                 function scrollHighlights(direction) {
                     const carousel = document.getElementById('highlightsCarousel');
-                    const scrollAmount = 360;
+                    const cards = carousel.querySelectorAll('.highlight-card');
+                    let scrollAmount = 360; // Fallback
+
+                    if (cards.length >= 2) {
+                        // Dynamically calculate distance: card width + gap
+                        scrollAmount = cards[1].offsetLeft - cards[0].offsetLeft;
+                    }
+
                     if (direction === 'left') {
                         carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
                     } else {
