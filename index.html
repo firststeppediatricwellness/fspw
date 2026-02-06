@@ -4522,9 +4522,10 @@
                     // Clamp index
                     targetIndex = Math.max(0, Math.min(cards.length - 1, targetIndex));
 
-                    // Calculate target scroll position (centered)
+                    // Calculate target scroll position (centered) with manual adjustment
                     const targetCard = cards[targetIndex];
-                    let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2);
+                    // -24px offset to nudge card slightly to the right visually
+                    let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2) - 24;
 
                     // Clamp scroll position
                     const maxScroll = carousel.scrollWidth - carouselWidth;
