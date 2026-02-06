@@ -4495,27 +4495,26 @@
                     const cards = Array.from(carousel.querySelectorAll('.highlight-card'));
                     if (cards.length === 0) return;
 
-                    const currentScroll = carousel.scrollLeft;
+                    const carouselWidth = carousel.clientWidth;
+                    const currentViewportCenter = carousel.scrollLeft + (carouselWidth / 2);
                     const buffer = 20;
-                    let targetScroll = currentScroll;
+                    let targetCard;
 
                     if (direction === 'right') {
-                        const nextCard = cards.find(card => card.offsetLeft > currentScroll + buffer);
-                        if (nextCard) {
-                            targetScroll = nextCard.offsetLeft;
-                        } else {
-                            targetScroll = carousel.scrollWidth - carousel.clientWidth;
-                        }
+                        // Find the first card whose center is to the right of current viewport center
+                        targetCard = cards.find(card => (card.offsetLeft + card.clientWidth / 2) > currentViewportCenter + buffer);
                     } else {
-                        const prevCards = cards.filter(card => card.offsetLeft < currentScroll - buffer);
-                        if (prevCards.length > 0) {
-                            const prevCard = prevCards[prevCards.length - 1];
-                            targetScroll = prevCard.offsetLeft;
-                        } else {
-                            targetScroll = 0;
-                        }
+                        // Find the last card whose center is to the left of current viewport center
+                        const prevCards = cards.filter(card => (card.offsetLeft + card.clientWidth / 2) < currentViewportCenter - buffer);
+                        targetCard = prevCards[prevCards.length - 1];
                     }
-                    carousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
+
+                    if (targetCard) {
+                        let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2);
+                        const maxScroll = carousel.scrollWidth - carouselWidth;
+                        targetScroll = Math.max(0, Math.min(maxScroll, targetScroll));
+                        carousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
+                    }
                 }
 
                 // Initialize and Listen
