@@ -477,6 +477,11 @@ function selectDeck(deck, path) {
 
     // Show first card
     showCard();
+
+    // Auto-close sidebar on mobile
+    if (window.innerWidth <= 768) {
+        toggleSidebar();
+    }
 }
 
 function collectDeckCards(deck, path, cards) {
@@ -742,4 +747,7 @@ function handleKeyboard(e) {
 // ===== Sidebar Toggle (Mobile) =====
 function toggleSidebar() {
     elements.sidebar.classList.toggle('open');
+    if (elements.sidebarToggle) {
+        elements.sidebarToggle.classList.toggle('active');
+    }
 }
