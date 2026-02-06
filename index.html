@@ -4497,24 +4497,40 @@
 
                     const carouselWidth = carousel.clientWidth;
                     const currentViewportCenter = carousel.scrollLeft + (carouselWidth / 2);
-                    const buffer = 20;
-                    let targetCard;
 
+                    // Find the card closest to the center
+                    let closestCardIndex = 0;
+                    let minDistance = Infinity;
+
+                    cards.forEach((card, index) => {
+                        const cardCenter = card.offsetLeft + (card.clientWidth / 2);
+                        const distance = Math.abs(currentViewportCenter - cardCenter);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestCardIndex = index;
+                        }
+                    });
+
+                    // Determine target index
+                    let targetIndex;
                     if (direction === 'right') {
-                        // Find the first card whose center is to the right of current viewport center
-                        targetCard = cards.find(card => (card.offsetLeft + card.clientWidth / 2) > currentViewportCenter + buffer);
+                        targetIndex = closestCardIndex + 1;
                     } else {
-                        // Find the last card whose center is to the left of current viewport center
-                        const prevCards = cards.filter(card => (card.offsetLeft + card.clientWidth / 2) < currentViewportCenter - buffer);
-                        targetCard = prevCards[prevCards.length - 1];
+                        targetIndex = closestCardIndex - 1;
                     }
 
-                    if (targetCard) {
-                        let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2);
-                        const maxScroll = carousel.scrollWidth - carouselWidth;
-                        targetScroll = Math.max(0, Math.min(maxScroll, targetScroll));
-                        carousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
-                    }
+                    // Clamp index
+                    targetIndex = Math.max(0, Math.min(cards.length - 1, targetIndex));
+
+                    // Calculate target scroll position (centered)
+                    const targetCard = cards[targetIndex];
+                    let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2);
+
+                    // Clamp scroll position
+                    const maxScroll = carousel.scrollWidth - carouselWidth;
+                    targetScroll = Math.max(0, Math.min(maxScroll, targetScroll));
+
+                    carousel.scrollTo({ left: targetScroll, behavior: 'smooth' });
                 }
 
                 // Initialize and Listen
