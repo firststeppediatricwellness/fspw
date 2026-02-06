@@ -4524,8 +4524,8 @@
 
                     // Calculate target scroll position (centered) with manual adjustment
                     const targetCard = cards[targetIndex];
-                    // -33px offset to nudge card slightly to the right visually
-                    let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2) - 33;
+                    // -30px offset to nudge card slightly to the right visually
+                    let targetScroll = targetCard.offsetLeft - (carouselWidth / 2) + (targetCard.clientWidth / 2) - 30;
 
                     // Clamp scroll position
                     const maxScroll = carousel.scrollWidth - carouselWidth;
