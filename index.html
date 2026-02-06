@@ -4287,7 +4287,7 @@
             <li><a href="#faq" onclick="showSection('faq')">Knowledge Hub</a></li>
             <li><a href="#schools-benefiting" onclick="showSection('schools-benefiting')">A+ School Partners</a></li>
             <li><a href="#our-impact" onclick="showSection('our-impact')">Our Impact</a></li>
-            <li><a href="#contact-us" onclick="showSection('contact-us')">Contact Us</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('contact-us')">Contact Us</a></li>
             <li><a href="#our-moments" onclick="showSection('our-moments')">Moments of Joy</a></li>
             <li><a href="xperience.html" target="_blank">Xperience Centre</a></li>
         </ul>
@@ -5643,7 +5643,7 @@
                     <a href="#schools-benefiting" class="footer-link" onclick="showSection('schools-benefiting')">A+
                         School Partners</a>
                     <a href="#our-impact" class="footer-link" onclick="showSection('our-impact')">Our Impact</a>
-                    <a href="#contact-us" class="footer-link" onclick="showSection('contact-us')">Contact Us</a>
+                    <a href="javascript:void(0)" class="footer-link" onclick="showSection('contact-us')">Contact Us</a>
                     <a href="#our-moments" class="footer-link" onclick="showSection('our-moments')">Moments of Joy</a>
                     <a href="xperience.html" target="_blank" class="footer-link">Xperience Centre</a>
                 </div>
@@ -12156,7 +12156,8 @@
                         </svg>
                     </button>
                     <p class="text-center mt-6 text-slate-500 text-sm">
-                        Don't have an account? <a href="#contact-us" onclick="closeLoginModal()"
+                        Don't have an account? <a href="javascript:void(0)"
+                            onclick="closeLoginModal(); showSection('contact-us')"
                             class="text-sky-400 hover:text-sky-300 font-bold">Contact
                             Support</a>
                     </p>
