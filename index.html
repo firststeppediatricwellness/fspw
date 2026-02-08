@@ -4289,6 +4289,7 @@
             <li><a href="#our-impact" onclick="showSection('our-impact')">Our Impact</a></li>
             <li><a href="javascript:void(0)" onclick="showSection('contact-us')">Contact Us</a></li>
             <li><a href="#our-moments" onclick="showSection('our-moments')">Moments of Joy</a></li>
+            <li><a href="#document-manager" onclick="scrollToDocManager()">Document Manager</a></li>
             <li><a href="xperience.html" target="_blank">Xperience Centre</a></li>
         </ul>
     </nav>
@@ -5577,6 +5578,11 @@
                     </a>
                 </div>
             </div>
+            <!-- Document Manager Section -->
+            <hr class="premium-separator" style="margin-top: -1.25rem !important; margin-bottom: 0 !important;">
+            <div id="document-manager" class="scroll-mt-24"></div>
+            <div id="documentManagerSection"></div>
+
         </div>
         </section>
         <!-- homeView closing div moved to after footer -->
@@ -5646,6 +5652,7 @@
                     <a href="javascript:void(0)" class="footer-link" onclick="showSection('contact-us')">Contact Us</a>
                     <a href="#our-moments" class="footer-link" onclick="showSection('our-moments')">Moments of Joy</a>
                     <a href="xperience.html" target="_blank" class="footer-link">Xperience Centre</a>
+                    <a href="#document-manager" class="footer-link" onclick="scrollToDocManager()">Document Manager</a>
                 </div>
 
                 <div class="footer-col">
@@ -9438,6 +9445,7 @@
                 resultsPage.innerHTML = reportHtml;
                 assessmentPage.classList.add('hidden');
                 const assessmentUI = document.getElementById('assessmentUI');
+                if (window.AssessmentManager) AssessmentManager.stopFaceMonitoring();
                 if (assessmentUI) assessmentUI.classList.add('hidden');
 
                 resultsPage.classList.remove('hidden');
@@ -11892,6 +11900,21 @@
 
         window.AssessmentManager = AssessmentManager;
 
+        // Document Manager Section
+    </script>
+    <script src="assets/js/doc-manager.js"></script>
+    <script>
+        function scrollToDocManager() {
+            if (typeof DocManager !== 'undefined') {
+                DocManager.scrollToSection();
+            } else {
+                // Fallback if script hasn't loaded yet
+                document.getElementById('document-manager')?.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+    <!-- Placeholder for future scripts -->
+    <script>
         // PDF Generation function is now in assets/js/pdf-generator.js
 
 
