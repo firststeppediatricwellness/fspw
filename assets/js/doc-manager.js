@@ -850,10 +850,22 @@ const DocManager = {
             return;
         }
 
-        list.innerHTML = filtered.map(doc => `
+        list.innerHTML = filtered.map(doc => {
+            // Extract date from timestamp
+            let dateStr = '';
+            if (doc.timestamp) {
+                const d = new Date(doc.timestamp);
+                if (!isNaN(d)) {
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const yyyy = d.getFullYear();
+                    dateStr = `${dd}/${mm}/${yyyy}`;
+                }
+            }
+            return `
             <a href="${doc.link}" target="_blank" class="p-4 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-colors flex items-center justify-between group">
                 <div class="w-full">
-                    <div class="font-bold text-white group-hover:text-blue-400 transition-colors text-lg flex items-center">
+                    <div class="font-bold text-white group-hover:text-blue-400 transition-colors text-lg flex items-center flex-wrap gap-y-1">
                         ${doc.studentName} 
                         <span class="text-slate-500 mx-2 text-sm">&gt;</span> 
                         <span class="text-sky-400">${doc.class}</span>
@@ -861,13 +873,14 @@ const DocManager = {
                         <span class="text-purple-400">${doc.section}</span>
                         <span class="text-slate-500 mx-2 text-sm">&gt;</span>
                         <span class="text-slate-300 text-sm whitespace-nowrap overflow-hidden text-ellipsis">${doc.school}</span>
+                        ${dateStr ? `<span class="text-slate-500 mx-2 text-sm">&gt;</span><span class="text-emerald-400 text-sm font-medium">${dateStr}</span>` : ''}
                     </div>
                 </div>
                 <div class="text-slate-500 group-hover:text-blue-400 shrink-0 ml-4">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                 </div>
             </a>
-        `).join('');
+        `}).join('');
     }
 };
 
