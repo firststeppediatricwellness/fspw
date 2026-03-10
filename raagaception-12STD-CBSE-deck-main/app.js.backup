@@ -1,0 +1,620 @@
+// ===== Application State =====
+const state = {
+    deckData: null,
+    allCards: [],
+    currentDeck: null,
+    currentCardIndex: 0,
+    isFlipped: false,
+    searchQuery: '',
+    searchResults: [],
+    expandedDecks: new Set()
+};
+
+// ===== DOM Elements =====
+const elements = {
+    loadingScreen: null,
+    loadingStatus: null,
+    app: null,
+    sidebarToggle: null,
+    sidebar: null,
+    deckTree: null,
+    expandAllBtn: null,
+    searchInput: null,
+    totalCards: null,
+    welcomeScreen: null,
+    welcomeTotalCards: null,
+    welcomeTotalDecks: null,
+    cardDisplay: null,
+    searchResults: null,
+    searchResultsList: null,
+    clearSearchBtn: null,
+    breadcrumb: null,
+    currentCardNum: null,
+    deckCardCount: null,
+    flashcard: null,
+    cardFrontContent: null,
+    cardBackContent: null,
+    prevBtn: null,
+    nextBtn: null,
+    flipBtn: null,
+    randomBtn: null
+};
+
+// ===== Initialization =====
+document.addEventListener('DOMContentLoaded', () => {
+    initializeElements();
+    loadDeckData();
+});
+
+function initializeElements() {
+    elements.loadingScreen = document.getElementById('loading-screen');
+    elements.loadingStatus = document.getElementById('loading-status');
+    elements.app = document.getElementById('app');
+    elements.sidebarToggle = document.getElementById('sidebar-toggle');
+    elements.sidebar = document.getElementById('sidebar');
+    elements.deckTree = document.getElementById('deck-tree');
+    elements.expandAllBtn = document.getElementById('expand-all-btn');
+    elements.searchInput = document.getElementById('search-input');
+    elements.totalCards = document.getElementById('total-cards');
+    elements.welcomeScreen = document.getElementById('welcome-screen');
+    elements.welcomeTotalCards = document.getElementById('welcome-total-cards');
+    elements.welcomeTotalDecks = document.getElementById('welcome-total-decks');
+    elements.cardDisplay = document.getElementById('card-display');
+    elements.searchResults = document.getElementById('search-results');
+    elements.searchResultsList = document.getElementById('search-results-list');
+    elements.clearSearchBtn = document.getElementById('clear-search-btn');
+    elements.breadcrumb = document.getElementById('breadcrumb');
+    elements.currentCardNum = document.getElementById('current-card-num');
+    elements.deckCardCount = document.getElementById('deck-card-count');
+    elements.flashcard = document.getElementById('flashcard');
+    elements.cardFrontContent = document.getElementById('card-front-content');
+    elements.cardBackContent = document.getElementById('card-back-content');
+    elements.prevBtn = document.getElementById('prev-btn');
+    elements.nextBtn = document.getElementById('next-btn');
+    elements.flipBtn = document.getElementById('flip-btn');
+    elements.randomBtn = document.getElementById('random-btn');
+
+    // File upload elements
+    const fileInput = document.getElementById('json-file-input');
+    const selectFileBtn = document.getElementById('select-file-btn');
+
+    if (selectFileBtn && fileInput) {
+        selectFileBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+    }
+
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    // Sidebar toggle
+    elements.sidebarToggle.addEventListener('click', toggleSidebar);
+
+    // Search
+    elements.searchInput.addEventListener('input', handleSearch);
+    elements.clearSearchBtn.addEventListener('click', clearSearch);
+
+    // Card controls
+    elements.flashcard.addEventListener('click', flipCard);
+    elements.flipBtn.addEventListener('click', flipCard);
+    elements.prevBtn.addEventListener('click', previousCard);
+    elements.nextBtn.addEventListener('click', nextCard);
+    elements.randomBtn.addEventListener('click', randomCard);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', handleKeyboard);
+
+    // Expand all
+    elements.expandAllBtn.addEventListener('click', toggleExpandAll);
+}
+
+// ===== Data Loading =====
+async function loadDeckData() {
+    try {
+        updateLoadingStatus('Loading deck data...');
+
+        const response = await fetch('raagaception-12STD-CBSE-deck.json');
+        if (!response.ok) throw new Error('Failed to load deck data');
+
+        updateLoadingStatus('Parsing JSON...');
+        state.deckData = await response.json();
+
+        updateLoadingStatus('Processing cards...');
+        processCards(state.deckData);
+
+        updateLoadingStatus('Building deck tree...');
+        buildDeckTree();
+
+        updateLoadingStatus('Finalizing...');
+        finishLoading();
+    } catch (error) {
+        console.error('Error loading deck:', error);
+
+        // Show file upload option
+        updateLoadingStatus('Unable to load automatically due to browser security.');
+        const fileUploadSection = document.getElementById('file-upload-section');
+        if (fileUploadSection) {
+            fileUploadSection.style.display = 'block';
+        }
+
+        // Hide spinner
+        const spinner = document.querySelector('.spinner');
+        if (spinner) spinner.style.display = 'none';
+    }
+}
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    updateLoadingStatus('Reading file...');
+    const fileUploadSection = document.getElementById('file-upload-section');
+    if (fileUploadSection) fileUploadSection.style.display = 'none';
+
+    const spinner = document.querySelector('.spinner');
+    if (spinner) spinner.style.display = 'block';
+
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+        try {
+            updateLoadingStatus('Parsing JSON...');
+            state.deckData = JSON.parse(e.target.result);
+
+            updateLoadingStatus('Processing cards...');
+            processCards(state.deckData);
+
+            updateLoadingStatus('Building deck tree...');
+            buildDeckTree();
+
+            updateLoadingStatus('Finalizing...');
+            finishLoading();
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            updateLoadingStatus('Error: Invalid JSON file. Please select the correct file.');
+            if (fileUploadSection) fileUploadSection.style.display = 'block';
+            if (spinner) spinner.style.display = 'none';
+        }
+    };
+
+    reader.onerror = function () {
+        updateLoadingStatus('Error reading file. Please try again.');
+        if (fileUploadSection) fileUploadSection.style.display = 'block';
+        if (spinner) spinner.style.display = 'none';
+    };
+
+    reader.readAsText(file);
+}
+
+function updateLoadingStatus(message) {
+    elements.loadingStatus.textContent = message;
+}
+
+function processCards(deck, path = []) {
+    // Process notes in current deck
+    if (deck.notes && deck.notes.length > 0) {
+        deck.notes.forEach(note => {
+            state.allCards.push({
+                note: note,
+                deckPath: [...path],
+                deckName: path[path.length - 1] || 'Root'
+            });
+        });
+    }
+
+    // Recursively process children
+    if (deck.children && deck.children.length > 0) {
+        deck.children.forEach(child => {
+            processCards(child, [...path, child.name]);
+        });
+    }
+}
+
+function finishLoading() {
+    // Update stats
+    elements.totalCards.textContent = state.allCards.length;
+    elements.welcomeTotalCards.textContent = state.allCards.length;
+    elements.welcomeTotalDecks.textContent = countDecks(state.deckData);
+
+    // Hide loading, show app
+    elements.loadingScreen.style.display = 'none';
+    elements.app.style.display = 'block';
+}
+
+function countDecks(deck) {
+    let count = 1;
+    if (deck.children) {
+        deck.children.forEach(child => {
+            count += countDecks(child);
+        });
+    }
+    return count;
+}
+
+// ===== Deck Tree Building =====
+function buildDeckTree() {
+    elements.deckTree.innerHTML = '';
+    if (state.deckData) {
+        const rootItem = createDeckTreeItem(state.deckData, []);
+        elements.deckTree.appendChild(rootItem);
+    }
+}
+
+function createDeckTreeItem(deck, path) {
+    const item = document.createElement('div');
+    item.className = 'deck-item';
+
+    const label = document.createElement('div');
+    label.className = 'deck-label';
+
+    const hasChildren = deck.children && deck.children.length > 0;
+    const cardCount = countCardsInDeck(deck);
+
+    // Toggle arrow (if has children)
+    if (hasChildren) {
+        const toggle = document.createElement('span');
+        toggle.className = 'deck-toggle';
+        toggle.innerHTML = '▶';
+        label.appendChild(toggle);
+    } else {
+        const spacer = document.createElement('span');
+        spacer.style.width = '16px';
+        label.appendChild(spacer);
+    }
+
+    // Deck name
+    const name = document.createElement('span');
+    name.className = 'deck-name';
+    name.textContent = deck.name || 'Root Deck';
+    label.appendChild(name);
+
+    // Card count
+    if (cardCount > 0) {
+        const count = document.createElement('span');
+        count.className = 'deck-count';
+        count.textContent = cardCount;
+        label.appendChild(count);
+    }
+
+    item.appendChild(label);
+
+    // Click handler
+    label.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (hasChildren && e.target.closest('.deck-toggle')) {
+            toggleDeckExpansion(deck, item);
+        } else if (cardCount > 0) {
+            selectDeck(deck, path);
+        }
+    });
+
+    // Children container
+    if (hasChildren) {
+        const childrenContainer = document.createElement('div');
+        childrenContainer.className = 'deck-children';
+
+        deck.children.forEach(child => {
+            const childItem = createDeckTreeItem(child, [...path, deck.name || 'Root']);
+            childrenContainer.appendChild(childItem);
+        });
+
+        item.appendChild(childrenContainer);
+    }
+
+    return item;
+}
+
+function countCardsInDeck(deck) {
+    let count = deck.notes ? deck.notes.length : 0;
+    if (deck.children) {
+        deck.children.forEach(child => {
+            count += countCardsInDeck(child);
+        });
+    }
+    return count;
+}
+
+function toggleDeckExpansion(deck, item) {
+    const toggle = item.querySelector('.deck-toggle');
+    const children = item.querySelector('.deck-children');
+
+    if (children.classList.contains('expanded')) {
+        children.classList.remove('expanded');
+        toggle.classList.remove('expanded');
+    } else {
+        children.classList.add('expanded');
+        toggle.classList.add('expanded');
+    }
+}
+
+function toggleExpandAll() {
+    const allChildren = elements.deckTree.querySelectorAll('.deck-children');
+    const allToggles = elements.deckTree.querySelectorAll('.deck-toggle');
+
+    const isExpanded = Array.from(allChildren).some(child => child.classList.contains('expanded'));
+
+    if (isExpanded) {
+        allChildren.forEach(child => child.classList.remove('expanded'));
+        allToggles.forEach(toggle => toggle.classList.remove('expanded'));
+        elements.expandAllBtn.textContent = 'Expand All';
+    } else {
+        allChildren.forEach(child => child.classList.add('expanded'));
+        allToggles.forEach(toggle => toggle.classList.add('expanded'));
+        elements.expandAllBtn.textContent = 'Collapse All';
+    }
+}
+
+// ===== Deck Selection =====
+function selectDeck(deck, path) {
+    // Collect all cards from this deck and its children
+    const deckCards = [];
+    collectDeckCards(deck, path, deckCards);
+
+    state.currentDeck = {
+        deck: deck,
+        path: path,
+        cards: deckCards
+    };
+    state.currentCardIndex = 0;
+
+    // Update UI
+    elements.welcomeScreen.style.display = 'none';
+    elements.searchResults.style.display = 'none';
+    elements.cardDisplay.style.display = 'block';
+
+    // Update active state in tree
+    document.querySelectorAll('.deck-label').forEach(label => label.classList.remove('active'));
+    event.target.closest('.deck-label').classList.add('active');
+
+    // Show first card
+    showCard();
+}
+
+function collectDeckCards(deck, path, cards) {
+    if (deck.notes && deck.notes.length > 0) {
+        deck.notes.forEach(note => {
+            cards.push({
+                note: note,
+                deckPath: [...path],
+                deckName: deck.name || 'Root'
+            });
+        });
+    }
+
+    if (deck.children) {
+        deck.children.forEach(child => {
+            collectDeckCards(child, [...path, child.name], cards);
+        });
+    }
+}
+
+// ===== Card Display =====
+function showCard() {
+    if (!state.currentDeck || state.currentDeck.cards.length === 0) return;
+
+    const cardData = state.currentDeck.cards[state.currentCardIndex];
+    const note = cardData.note;
+
+    // Reset flip state
+    state.isFlipped = false;
+    elements.flashcard.classList.remove('flipped');
+
+    // Update breadcrumb
+    elements.breadcrumb.textContent = cardData.deckPath.join(' > ') || 'Root';
+
+    // Update counter
+    elements.currentCardNum.textContent = state.currentCardIndex + 1;
+    elements.deckCardCount.textContent = state.currentDeck.cards.length;
+
+    // Render card content
+    const isCloze = note.note_model_uuid === '39a7d678-fb7f-11eb-bb7c-e0d55e85db11';
+
+    if (isCloze) {
+        // Cloze card
+        const frontText = renderClozeQuestion(note.fields[0]);
+        const backText = renderClozeAnswer(note.fields[0]);
+
+        elements.cardFrontContent.innerHTML = frontText;
+        elements.cardBackContent.innerHTML = backText;
+    } else {
+        // Basic card
+        elements.cardFrontContent.innerHTML = processContent(note.fields[0]);
+        elements.cardBackContent.innerHTML = processContent(note.fields[1] || note.fields[0]);
+    }
+
+    // Update navigation buttons
+    elements.prevBtn.disabled = state.currentCardIndex === 0;
+    elements.nextBtn.disabled = state.currentCardIndex === state.currentDeck.cards.length - 1;
+
+    // Re-render MathJax
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise([elements.cardFrontContent, elements.cardBackContent]).catch(err => console.error('MathJax error:', err));
+    }
+}
+
+function renderClozeQuestion(text) {
+    // Replace cloze deletions with blanks
+    let processed = text.replace(/\{\{c\d+::(.*?)\}\}/g, '<span class="cloze-blank">[...]</span>');
+    return processContent(processed);
+}
+
+function renderClozeAnswer(text) {
+    // Show cloze deletions
+    let processed = text.replace(/\{\{c\d+::(.*?)\}\}/g, '<span class="cloze-blank">$1</span>');
+    return processContent(processed);
+}
+
+function processContent(html) {
+    if (!html) return '';
+
+    // Fix image paths to use media folder
+    let processed = html.replace(/src="([^"]+)"/g, (match, src) => {
+        if (!src.startsWith('http') && !src.startsWith('data:')) {
+            return `src="media/${src}"`;
+        }
+        return match;
+    });
+
+    return processed;
+}
+
+// ===== Card Navigation =====
+function flipCard() {
+    state.isFlipped = !state.isFlipped;
+    if (state.isFlipped) {
+        elements.flashcard.classList.add('flipped');
+    } else {
+        elements.flashcard.classList.remove('flipped');
+    }
+}
+
+function previousCard() {
+    if (state.currentCardIndex > 0) {
+        state.currentCardIndex--;
+        showCard();
+    }
+}
+
+function nextCard() {
+    if (state.currentCardIndex < state.currentDeck.cards.length - 1) {
+        state.currentCardIndex++;
+        showCard();
+    }
+}
+
+function randomCard() {
+    if (!state.currentDeck || state.currentDeck.cards.length === 0) return;
+
+    const randomIndex = Math.floor(Math.random() * state.currentDeck.cards.length);
+    state.currentCardIndex = randomIndex;
+    showCard();
+}
+
+// ===== Search =====
+function handleSearch(e) {
+    const query = e.target.value.trim().toLowerCase();
+    state.searchQuery = query;
+
+    if (query.length === 0) {
+        clearSearch();
+        return;
+    }
+
+    if (query.length < 2) return; // Wait for at least 2 characters
+
+    // Search through all cards
+    state.searchResults = state.allCards.filter(cardData => {
+        const note = cardData.note;
+        const searchText = note.fields.join(' ').toLowerCase();
+        return searchText.includes(query);
+    });
+
+    displaySearchResults();
+}
+
+function displaySearchResults() {
+    elements.welcomeScreen.style.display = 'none';
+    elements.cardDisplay.style.display = 'none';
+    elements.searchResults.style.display = 'block';
+
+    elements.searchResultsList.innerHTML = '';
+
+    if (state.searchResults.length === 0) {
+        elements.searchResultsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No results found</p>';
+        return;
+    }
+
+    state.searchResults.forEach((cardData, index) => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+
+        const deckPath = document.createElement('div');
+        deckPath.className = 'search-result-deck';
+        deckPath.textContent = cardData.deckPath.join(' > ') || 'Root';
+
+        const content = document.createElement('div');
+        content.className = 'search-result-content';
+
+        // Get text content (remove HTML tags for preview)
+        let text = cardData.note.fields[0].replace(/<[^>]*>/g, '');
+        text = text.replace(/\{\{c\d+::(.*?)\}\}/g, '$1'); // Show cloze answers in search
+
+        // Highlight search term
+        const regex = new RegExp(`(${state.searchQuery})`, 'gi');
+        text = text.replace(regex, '<span class="search-highlight">$1</span>');
+
+        // Truncate if too long
+        if (text.length > 200) {
+            text = text.substring(0, 200) + '...';
+        }
+
+        content.innerHTML = text;
+
+        item.appendChild(deckPath);
+        item.appendChild(content);
+
+        item.addEventListener('click', () => {
+            // Find the card in allCards and show it
+            const cardIndex = state.allCards.findIndex(c => c.note.guid === cardData.note.guid);
+            if (cardIndex !== -1) {
+                // Create a temporary deck with just search results
+                state.currentDeck = {
+                    deck: { name: 'Search Results' },
+                    path: ['Search Results'],
+                    cards: state.searchResults
+                };
+                state.currentCardIndex = index;
+
+                elements.searchResults.style.display = 'none';
+                elements.cardDisplay.style.display = 'block';
+                showCard();
+            }
+        });
+
+        elements.searchResultsList.appendChild(item);
+    });
+}
+
+function clearSearch() {
+    elements.searchInput.value = '';
+    state.searchQuery = '';
+    state.searchResults = [];
+
+    elements.searchResults.style.display = 'none';
+
+    if (state.currentDeck) {
+        elements.cardDisplay.style.display = 'block';
+    } else {
+        elements.welcomeScreen.style.display = 'flex';
+    }
+}
+
+// ===== Keyboard Shortcuts =====
+function handleKeyboard(e) {
+    // Don't trigger if typing in search
+    if (e.target === elements.searchInput) return;
+
+    switch (e.key) {
+        case ' ':
+            e.preventDefault();
+            if (state.currentDeck) flipCard();
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            if (state.currentDeck) nextCard();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            if (state.currentDeck) previousCard();
+            break;
+        case 'r':
+        case 'R':
+            e.preventDefault();
+            if (state.currentDeck) randomCard();
+            break;
+    }
+}
+
+// ===== Sidebar Toggle (Mobile) =====
+function toggleSidebar() {
+    elements.sidebar.classList.toggle('open');
+}

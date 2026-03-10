@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Concentration Breathing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'anime': ['"Sawarabi Mincho"', 'serif'],
+                    },
+                    colors: {
+                        primary: '#2E8B57',
+                        'demon-green': '#20603D',
+                        'demon-black': '#1a1a1a',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in-up': 'fadeInUp 0.3s ease-out forwards',
+                        'slide-in': 'slideIn 0.4s ease-out forwards',
+                        'impact-zoom': 'impactZoom 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        impactZoom: {
+                            '0%': { transform: 'scale(0.5)', opacity: '0' },
+                            '50%': { transform: 'scale(1.2)' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        }
+                    }
+                },
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        .demon-bg {
+            background-color: #1a1a1a;
+            position: relative;
+        }
+
+        /* Checkered Pattern as a pseudo-element behind everything but above the base color */
+        .demon-bg::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(45deg, rgba(16, 64, 32, 0.6) 25%, transparent 25%, transparent 75%, rgba(16, 64, 32, 0.6) 75%, rgba(16, 64, 32, 0.6)),
+                linear-gradient(45deg, rgba(16, 64, 32, 0.6) 25%, transparent 25%, transparent 75%, rgba(16, 64, 32, 0.6) 75%, rgba(16, 64, 32, 0.6));
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #fxCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            /* Above background, behind UI */
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .circle-shadow {
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Impact Text Style */
+        .text-impact {
+            text-shadow: 0 0 10px currentColor;
+            /* Glow */
+        }
+
+        .katana-slash {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .katana-slash::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+
+        .katana-slash:hover::after {
+            left: 200%;
+            transition: 0.3s;
+            /* Faster for slash effect */
+        }
+
+        .blade-sparkle {
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .settings-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .settings-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .settings-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(100, 100, 100, 0.5);
+            border-radius: 20px;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+            }
+
+            50% {
+                box-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+            }
+        }
+
+        .aura-effect {
+            animation: glowPulse 4s infinite ease-in-out;
+        }
+
+        /* Nichirin Blade CSS */
+        .nichirin-container {
+            position: relative;
+            width: 320px;
+            height: 60px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nichirin-container:hover {
+            transform: scale(1.05);
+        }
+
+        .handle {
+            width: 80px;
+            height: 24px;
+            background: repeating-linear-gradient(45deg, #1f2937, #1f2937 5px, #4b5563 5px, #4b5563 10px);
+            border-radius: 4px;
+            position: relative;
+            z-index: 10;
+            border: 2px solid #111827;
+        }
+
+        .tsuba {
+            /* Guard */
+            width: 12px;
+            height: 48px;
+            background: #d1d5db;
+            /* Silver default */
+            border-radius: 4px;
+            position: absolute;
+            left: 75px;
+            z-index: 11;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            background-image: radial-gradient(circle, #374151 20%, transparent 20%);
+            background-size: 8px 8px;
+        }
+
+        .blade-wrapper {
+            position: absolute;
+            left: 80px;
+            height: 20px;
+            width: 240px;
+            overflow: hidden;
+            /* Hide blade when sheathed */
+            border-radius: 0 4px 4px 0;
+            z-index: 5;
+            transition: width 0.5s ease-out;
+        }
+
+        .blade {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #e5e7eb 50%, #9ca3af 50%);
+            /* Steel look */
+            position: relative;
+            border-radius: 0 100% 0 0;
+            /* Katana tip curve */
+            transform: translateX(-100%);
+            /* Initially hidden inside handle/scabbard area */
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2) inset;
+        }
+
+        .scabbard {
+            position: absolute;
+            left: 82px;
+            width: 240px;
+            height: 28px;
+            background: #111827;
+            border-radius: 0 4px 4px 0;
+            z-index: 20;
+            transition: transform 0.6s ease-in-out, opacity 0.6s;
+            border: 2px solid #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scabbard-text {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        /* Unsheathed State */
+        .nichirin-container.unsheathed .scabbard {
+            transform: translateX(20px) rotate(5deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nichirin-container.unsheathed .blade {
+            transform: translateX(0);
+        }
+
+        /* --- Elemental FX --- */
+
+        /* FLAME (Rengoku) */
+        .blade.fx-flame {
+            background: linear-gradient(to bottom, #fef3c7 10%, #f97316 40%, #dc2626 100%);
+            box-shadow: 0 0 15px #f97316, 0 0 30px #dc2626;
+            animation: flameFlicker 0.1s infinite alternate;
+        }
+
+        @keyframes flameFlicker {
+            0% {
+                opacity: 0.9;
+            }
+
+            100% {
+                opacity: 1;
+                filter: brightness(1.2);
+            }
+        }
+
+        /* WATER (Tanjiro/Giyu) */
+        .blade.fx-water {
+            background: linear-gradient(180deg, #dbeafe 0%, #3b82f6 50%, #172554 100%);
+            box-shadow: 0 0 15px #3b82f6;
+            overflow: hidden;
+        }
+
+        .blade.fx-water::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: waterFlow 1s infinite linear;
+        }
+
+        @keyframes waterFlow {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(50%);
+            }
+        }
+
+        /* THUNDER (Zenitsu) */
+        .blade.fx-thunder {
+            background: #fef08a;
+            box-shadow: 0 0 15px #eab308, 0 0 40px #facc15;
+            border: 2px solid #ffffff;
+            animation: thunderFlash 0.3s infinite;
+        }
+
+        @keyframes thunderFlash {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+                filter: drop-shadow(0 0 10px yellow);
+            }
+        }
+
+        /* SUN (Yoriichi) */
+        .blade.fx-sun {
+            background: #fff;
+            box-shadow: 0 0 20px #ef4444, 0 0 60px #dc2626;
+            animation: sunPulse 2s infinite ease-in-out;
+        }
+
+        /* WIND (Sanemi) */
+        .blade.fx-wind {
+            background: linear-gradient(to bottom, #d1fae5, #10b981);
+            box-shadow: 0 0 15px #34d399;
+            filter: blur(0.5px);
+        }
+
+        /* MOON (Kokushibo) */
+        .blade.fx-moon {
+            background: linear-gradient(to bottom, #e0e7ff, #4338ca 60%, #312e81);
+            box-shadow: 0 0 20px #818cf8;
+            position: relative;
+        }
+
+        .blade.fx-moon::before {
+            content: '☾';
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            position: absolute;
+            left: 20px;
+        }
+
+        /* CUSTOM / BLACK */
+        .blade.fx-black {
+            background: linear-gradient(to bottom, #374151, #000000 80%);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid #6b7280;
+            /* Subtle edge */
+        }
+
+        /* INSECT, FLOWER, ETC - Generic Glows matching colors */
+        .blade.fx-insect {
+            background: linear-gradient(to bottom, #f3e8ff, #a855f7);
+            box-shadow: 0 0 15px #a855f7;
+        }
+
+        .blade.fx-flower {
+            background: linear-gradient(to bottom, #ffe4e6, #f43f5e);
+            box-shadow: 0 0 15px #f43f5e;
+        }
+
+        .blade.fx-mist {
+            background: linear-gradient(to bottom, #ccfbf1, #14b8a6);
+            box-shadow: 0 0 15px #2dd4bf;
+            opacity: 0.8;
+        }
+
+        .blade.fx-stone {
+            background: #9ca3af;
+            box-shadow: 0 0 5px #4b5563;
+        }
+
+        .blade.fx-serpent {
+            background: linear-gradient(90deg, #4f46e5 10%, #312e81 90%);
+            box-shadow: 0 0 15px #6366f1;
+        }
+
+        .blade.fx-sound {
+            background: linear-gradient(to bottom, #fae8ff, #d946ef);
+            box-shadow: 0 0 20px #e879f9;
+        }
+
+        .blade.fx-beast {
+            background: #94a3b8;
+            border-top: 3px dashed #334155;
+            /* Chipped blade look */
+            box-shadow: 0 0 10px #64748b;
+        }
+    </style>
+</head>
+
+<body
+    class="transition-colors duration-1000 min-h-screen flex flex-col lg:flex-row justify-center demon-bg overflow-x-hidden font-anime relative">
+
+    <canvas id="fxCanvas"></canvas>
+
+
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300 border-l-4 border-red-600 relative overflow-hidden"
+            id="confirmModalContent">
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 translate-x-[-150%] animate-pulse">
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 font-anime border-b border-gray-600 pb-2">
+                Change Breathing Style?</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">You are in the middle of training. <br><span
+                    class="text-red-400 font-bold">Concentration will be broken!</span></p>
+            <div class="flex space-x-3 justify-end">
+                <button id="cancelChangeBtn"
+                    class="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 font-medium transition-colors">
+                    Maintain Focus
+                </button>
+                <button id="confirmChangeBtn"
+                    class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-medium shadow-md transition-colors katana-slash border border-red-400">
+                    Switch Form
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Center Area -->
+    <main
+        class="flex-1 w-full flex flex-col items-center justify-center p-4 lg:p-12 relative z-10 text-center min-h-screen">
+        <div id="app" class="w-full max-w-4xl flex flex-col items-center">
+            <!-- Logo Area -->
+            <div
+                class="mb-4 inline-block relative group cursor-default transform hover:scale-105 transition-transform pt-4">
+                <h1
+                    class="text-5xl lg:text-6xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] tracking-wider">
+                    <span class="text-green-400 drop-shadow-[0_0_8px_rgba(72,187,120,0.8)]">Total</span> Concentration
+                </h1>
+                <div
+                    class="h-1 w-full bg-gradient-to-r from-transparent via-green-500 to-transparent mt-2 shadow-[0_0_10px_#48bb78]">
+                </div>
+            </div>
+
+            <!-- Main Breathing Display (Circle + Controls) -->
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-12 mb-10 mt-8">
+
+                <!-- Breathing Circle -->
+                <div id="breathingCircle"
+                    class="relative w-80 h-80 rounded-full transition-all duration-1000 flex items-center justify-center border-4 border-white border-opacity-40 backdrop-blur-sm bg-white bg-opacity-5 aura-effect text-green-500">
+                    <div id="innerCircle"
+                        class="absolute w-52 h-52 rounded-full bg-white flex items-center justify-center transition-all shadow-[0_0_50px_rgba(255,255,255,0.4)]">
+                        <div class="relative flex flex-col items-center justify-center z-20">
+                            <div id="focusElement"
+                                class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-blue-500 mb-2 shadow-lg animate-pulse-slow">
+                            </div>
+                            <span id="breatheText"
+                                class="text-4xl font-bold text-gray-800 font-anime whitespace-nowrap text-impact transition-transform duration-100">Ready</span>
+                            <span id="phaseTimer"
+                                class="text-6xl font-bold text-black mt-2 opacity-0 transition-opacity duration-300 font-mono">4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls (Side Panel) -->
+                <div class="flex flex-col items-center space-y-8 mt-4 lg:mt-0">
+
+                    <!-- Interactive Nichirin Blade -->
+                    <div id="nichirinSword" class="nichirin-container group" onclick="toggleBreathingState()">
+                        <div class="handle"></div>
+                        <div class="tsuba"></div>
+                        <div class="blade-wrapper">
+                            <div id="bladeElement" class="blade"></div>
+                        </div>
+                        <div class="scabbard">
+                            <span class="scabbard-text group-hover:text-white transition-colors">Unsheathe</span>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Stop Button (Logic handled by clicking sword again to sheathe) -->
+                    <div class="flex gap-4">
+                        <button id="pauseBtn"
+                            class="hidden px-4 py-2 text-sm text-yellow-400 hover:text-yellow-300 transition-colors underline focus:outline-none font-anime tracking-wider whitespace-nowrap">
+                            Pause
+                        </button>
+                        <button id="stopBtn"
+                            class="hidden px-4 py-2 text-sm text-red-400 hover:text-red-300 transition-colors underline focus:outline-none font-anime tracking-wider whitespace-nowrap">
+                            Sheathe Blade
+                        </button>
+                    </div>
+
+                    <!-- Sidebar Timer Display -->
+                    <div id="sidebarTimerContainer" class="hidden flex-col items-center">
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-anime mb-1">Time
+                            Remaining</span>
+                        <span id="sidebarTimer"
+                            class="text-xl font-mono text-green-400 font-bold drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">0:00</span>
+                    </div>
+
+                    <p id="bladeStatusText"
+                        class="text-xs text-gray-500 font-anime uppercase tracking-widest invisible">Blade Drawn</p>
+                </div>
+            </div>
+
+            <!-- Wait, I shouldn't have put 'writing-vertical-lr' inside the replacement content comment if I wasn't going to use it. Retrying with a cleaner landscape button layout on the side. -->
+
+            <!-- Progress & Timer -->
+            <div id="sessionStats" class="opacity-0 transition-opacity duration-500 max-w-xs mx-auto">
+                <div id="progressContainer"
+                    class="w-full bg-gray-900 bg-opacity-80 rounded-full h-4 mb-2 border border-gray-600 shadow-inner">
+                    <div id="progressBar"
+                        class="bg-gradient-to-r from-green-400 to-blue-500 h-full rounded-full transition-all duration-1000 relative shadow-[0_0_15px_currentColor]"
+                        style="width: 0%">
+                        <div
+                            class="absolute right-0 top-0 h-full w-2 bg-white opacity-80 shadow-[0_0_10px_white] animate-pulse">
+                        </div>
+                    </div>
+                </div>
+                <!-- timerDisplay removed -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside
+        class="w-full lg:w-96 glass-panel lg:h-screen lg:sticky lg:top-0 lg:border-l border-gray-700 overflow-y-auto settings-scroll z-20 transition-transform duration-300 text-gray-100">
+        <div class="p-6">
+            <h2
+                class="text-2xl font-bold mb-6 text-white flex items-center border-b border-gray-600 pb-4 font-anime bg-gradient-to-r from-white to-transparent bg-clip-text text-transparent">
+                <span class="text-3xl mr-3 text-white">巻物</span> Breathing Forms
+            </h2>
+
+            <!-- Grid of Techniques -->
+            <div class="mb-8">
+                <div class="grid grid-cols-1 gap-3">
+
+                    <!-- Water -->
+                    <button id="preset-calm" onclick="applyPresetWrapper('calm')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-blue-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-blue-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-blue-500 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-blue-200 block">Water Breathing</span>
+                                <span class="text-[10px] text-blue-400">First Form</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Surface Slash (4-4-4-4)</p>
+                        <p class="text-[10px] text-blue-300 mt-1 italic">Benefit: Anxiety Reduction (Box Breathing)</p>
+                    </button>
+
+                    <!-- Flame (Priority) -->
+                    <button id="preset-flame" onclick="applyPresetWrapper('flame')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-orange-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-orange-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-orange-500 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-orange-200 block">Flame Breathing</span>
+                                <span class="text-[10px] text-orange-400">Rengoku's Style</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Set Heart Ablaze (5-5-5-5)</p>
+                        <p class="text-[10px] text-orange-300 mt-1 italic">Benefit: High Performance Focus (Navy SEALs)
+                        </p>
+                    </button>
+
+                    <!-- Sun -->
+                    <button id="preset-sadness" onclick="applyPresetWrapper('sadness')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-red-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-red-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-red-500 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-red-200 block">Sun Breathing</span>
+                                <span class="text-[10px] text-red-400">Dance of the Fire God</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Clear Blue Sky (6-0-2-0)</p>
+                        <p class="text-[10px] text-red-300 mt-1 italic">Benefit: Boosts Energy & Alertness</p>
+                    </button>
+
+                    <!-- Thunder -->
+                    <button id="preset-panic" onclick="applyPresetWrapper('panic')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-yellow-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-yellow-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-yellow-400 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-yellow-200 block">Thunder Breathing</span>
+                                <span class="text-[10px] text-yellow-400">First Form</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Thunderclap (4-0-8-0)</p>
+                        <p class="text-[10px] text-yellow-300 mt-1 italic">Benefit: Rapid Panic Relief (Extended Exhale)
+                        </p>
+                    </button>
+
+                    <!-- Wind -->
+                    <button id="preset-wind" onclick="applyPresetWrapper('wind')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-green-100 hover:bg-opacity-10 rounded-lg border border-gray-700 hover:border-green-300 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-emerald-400 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-emerald-200 block">Wind Breathing</span>
+                                <span class="text-[10px] text-emerald-400">Dust Whirlwind</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Sanemi (4-2-4-2)</p>
+                        <p class="text-[10px] text-emerald-600 mt-1 italic">Benefit: Neuro-Stability & Grounding</p>
+                    </button>
+
+                    <!-- Sound -->
+                    <button id="preset-sound" onclick="applyPresetWrapper('sound')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-fuchsia-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-fuchsia-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-fuchsia-500 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-fuchsia-200 block">Sound Breathing</span>
+                                <span class="text-[10px] text-fuchsia-400">Musical Score</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Rhythm (4-1-4-1)</p>
+                        <p class="text-[10px] text-fuchsia-300 mt-1 italic">Benefit: Rhythmic Focus & Flow State</p>
+                    </button>
+
+                    <!-- Beast -->
+                    <button id="preset-beast" onclick="applyPresetWrapper('beast')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-slate-700 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-slate-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-slate-400 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-slate-200 block">Beast Breathing</span>
+                                <span class="text-[10px] text-slate-400">Fang Over Fang</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Spatial Aware (4-0-4-0)</p>
+                        <p class="text-[10px] text-slate-300 mt-1 italic">Benefit: Heightened Sensory Awareness</p>
+                    </button>
+
+                    <!-- Insect -->
+                    <button id="preset-reset" onclick="applyPresetWrapper('reset')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-purple-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-purple-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-purple-500 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-purple-200 block">Insect Breathing</span>
+                                <span class="text-[10px] text-purple-400">Butterfly Dance</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Physiological Sigh • Reset</p>
+                        <p class="text-[10px] text-purple-300 mt-1 italic">Benefit: Fastest Stress Reduction
+                            (Neuroscience)</p>
+                    </button>
+
+                    <!-- Flower -->
+                    <button id="preset-flower" onclick="applyPresetWrapper('flower')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-rose-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-rose-300 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-rose-400 opacity-10 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-20 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-rose-200 block">Flower Breathing</span>
+                                <span class="text-[10px] text-rose-400">Vermilion Eye</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Deep Vision (4-4-6-0)</p>
+                        <p class="text-[10px] text-rose-300 mt-1 italic">Benefit: Enhances Focus & Visual Clarity</p>
+                    </button>
+
+                    <!-- Moon -->
+                    <button id="preset-moon" onclick="applyPresetWrapper('moon')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-indigo-950 hover:bg-opacity-80 rounded-lg border border-gray-700 hover:border-indigo-500 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-indigo-500 opacity-20 rounded-full -mr-8 -mt-8 blur-xl group-hover:opacity-30 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-indigo-300 block">Moon Breathing</span>
+                                <span class="text-[10px] text-indigo-400">Crescent Blades</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Chaotic Blades • Double Exhale</p>
+                        <p class="text-[10px] text-indigo-300 mt-1 italic">Benefit: CO2 Offloading & Stress Release</p>
+                    </button>
+
+                    <!-- Stone -->
+                    <button id="preset-sleep" onclick="applyPresetWrapper('sleep')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-gray-800 hover:bg-opacity-60 rounded-lg border border-gray-700 hover:border-gray-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div
+                            class="absolute top-0 right-0 w-16 h-16 bg-gray-500 opacity-10 rounded-full -mr-8 -mt-8 blur-xl">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-gray-200 block">Stone Breathing</span>
+                                <span class="text-[10px] text-gray-400">Meditation</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Solid Rock (4-7-8)</p>
+                        <p class="text-[10px] text-gray-300 mt-1 italic">Benefit: Induces Sleep (Dr. Andrew Weil)</p>
+                    </button>
+
+                    <!-- Love -->
+                    <button id="preset-balance" onclick="applyPresetWrapper('balance')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-pink-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-pink-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-pink-200 block">Love Breathing</span>
+                                <span class="text-[10px] text-pink-400">Harmony</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Cat's Love (5-0-5-0)</p>
+                        <p class="text-[10px] text-pink-300 mt-1 italic">Benefit: Emotional Balance & Coherence</p>
+                    </button>
+
+                    <!-- Mist -->
+                    <button id="preset-focus" onclick="applyPresetWrapper('focus')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-teal-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-teal-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-teal-200 block">Mist Breathing</span>
+                                <span class="text-[10px] text-teal-400">Obscuring Clouds</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Clouds (4-4-4-0)</p>
+                        <p class="text-[10px] text-teal-300 mt-1 italic">Benefit: Mental Clarity & Focus</p>
+                    </button>
+
+                    <!-- Serpent -->
+                    <button id="preset-7_11" onclick="applyPresetWrapper('7_11')"
+                        class="group p-4 bg-gray-900 bg-opacity-60 hover:bg-indigo-900 hover:bg-opacity-40 rounded-lg border border-gray-700 hover:border-indigo-400 transition-all text-left relative overflow-hidden katana-slash">
+                        <div class="flex justify-between items-start mb-1">
+                            <div>
+                                <span class="font-bold text-indigo-200 block">Serpent Breathing</span>
+                                <span class="text-[10px] text-indigo-400">Coil Choke</span>
+                            </div>
+                            <span
+                                class="text-[10px] px-1.5 py-0.5 rounded bg-green-900/80 border border-green-500/50 text-green-200 flex items-center gap-1 shadow-[0_0_5px_rgba(34,197,94,0.3)]">
+                                <span>✓</span> Research Backed
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400">Slither (7-11)</p>
+                        <p class="text-[10px] text-indigo-300 mt-1 italic">Benefit: Deep Relaxation Response</p>
+                    </button>
+
+                </div>
+            </div>
+
+            <hr class="border-gray-600 mb-6">
+
+            <!-- Custom Controls -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest font-anime">Custom Technique
+                    </h3>
+                    <select id="patternSelect"
+                        class="py-1 px-2 border border-gray-600 bg-gray-800 rounded text-xs text-gray-200 focus:outline-none focus:ring-green-500 focus:border-green-500 font-anime">
+                        <option value="standard">Standard Form</option>
+                        <option value="double_inhale">Double Inhale (Insect)</option>
+                        <option value="double_exhale">Double Exhale (Moon)</option>
+                        <option value="triangle">Triangle (Mist)</option>
+                    </select>
+                </div>
+
+                <div id="dynamicSliders" class="space-y-6 text-gray-300"></div>
+
+                <div class="pt-4 border-t border-gray-600 mt-6">
+                    <label for="sessionDuration"
+                        class="block text-sm font-bold text-gray-400 mb-2 font-anime tracking-wider">Training
+                        Duration</label>
+                    <select id="sessionDuration"
+                        class="block w-full py-2 px-3 border border-gray-600 bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm text-gray-200">
+                        <option value="1">1 minute</option>
+                        <option value="3">3 minutes</option>
+                        <option value="5" selected>5 minutes</option>
+                        <option value="10">10 minutes</option>
+                        <option value="20">20 minutes</option>
+                        <option value="-1">Continuous Training</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        document.documentElement.classList.add('dark');
+
+        const breathingCircle = document.getElementById('breathingCircle');
+        const innerCircle = document.getElementById('innerCircle');
+        const breatheText = document.getElementById('breatheText');
+        const phaseTimer = document.getElementById('phaseTimer');
+        const progressBar = document.getElementById('progressBar');
+        const sessionStats = document.getElementById('sessionStats');
+        const focusElement = document.getElementById('focusElement');
+        const toastContainer = document.getElementById('toastContainer');
+        const dynamicSlidersContainer = document.getElementById('dynamicSliders');
+        const patternSelect = document.getElementById('patternSelect');
+        const sessionDurationSelect = document.getElementById('sessionDuration');
+        const allPresetButtons = document.querySelectorAll('aside button[id^="preset-"]');
+
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmChangeBtn = document.getElementById('confirmChangeBtn');
+        const cancelChangeBtn = document.getElementById('cancelChangeBtn');
+
+        // Canvas Setup
+        const canvas = document.getElementById('fxCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(type) {
+                this.type = type;
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 4 + 1;
+                this.speedY = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 1;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.life = 100 + Math.random() * 100;
+
+                if (this.type === 'flame') {
+                    this.speedY = Math.random() * 3 + 2;
+                    this.color = `rgba(255, ${Math.floor(Math.random() * 150)}, 0, ${this.opacity})`;
+                    this.size = Math.random() * 6;
+                } else if (this.type === 'water') {
+                    this.color = `rgba(100, 180, 255, ${this.opacity})`;
+                    this.bubble = true;
+                } else if (this.type === 'thunder') {
+                    this.color = `rgba(255, 220, 0, ${this.opacity})`;
+                    this.life = 10;
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                } else if (this.type === 'wind') {
+                    this.color = `rgba(100, 255, 150, ${this.opacity})`;
+                    this.speedX = Math.random() * 10 + 5;
+                    this.speedY = (Math.random() - 0.5) * 2;
+                    this.y = Math.random() * canvas.height;
+                    this.x = -100;
+                } else if (this.type === 'moon') {
+                    this.color = `rgba(150, 100, 255, ${this.opacity})`;
+                    this.size = Math.random() * 3;
+                } else if (this.type === 'flower' || this.type === 'insect') {
+                    this.color = `rgba(255, 150, 200, ${this.opacity})`;
+                    this.size = Math.random() * 5 + 2;
+                } else if (this.type === 'mist') {
+                    this.color = `rgba(220, 255, 250, ${this.opacity * 0.5})`;
+                    this.size = Math.random() * 50 + 20;
+                    this.speedY = 0.5;
+                } else if (this.type === 'stone') {
+                    this.color = `rgba(120, 120, 120, ${this.opacity})`;
+                    this.y = -50;
+                    this.speedY = Math.random() * 2 + 1;
+                } else if (this.type === 'sound') {
+                    this.color = `rgba(255, 0, 255, ${this.opacity})`;
+                    this.size = Math.random() * 4;
+                } else {
+                    this.color = `rgba(255, 255, 255, ${this.opacity})`;
+                }
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                this.life--;
+
+                if (this.type === 'thunder' && Math.random() > 0.8) {
+                    this.x += (Math.random() - 0.5) * 20;
+                    this.y += (Math.random() - 0.5) * 20;
+                }
+
+                if (this.type === 'stone') {
+                    this.y += this.speedY * 2; // Falls down
+                }
+
+                if (this.life <= 0 || this.y < -50 || this.y > canvas.height + 100 || this.x > canvas.width + 100) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                if (this.type === 'moon') {
+                    ctx.arc(this.x, this.y, this.size, 0.2 * Math.PI, 1.2 * Math.PI);
+                    ctx.fill();
+                } else {
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function initParticles(type) {
+            particles = [];
+            const count = type === 'mist' ? 20 : 100;
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(type));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        // Start animation loop
+        animateParticles();
+
+
+        // Core Logic
+        let isBreathing = false;
+        let breathingInterval;
+        let elapsedTime = 0;
+        let sessionDuration = parseInt(sessionDurationSelect.value) * 60;
+
+        let currentStepIndex = 0;
+        let stepStartTime = 0;
+        let progressTimer;
+        let pendingAction = null;
+        let pendingCancel = null;
+
+        const themes = {
+            water: { bg: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', fx: 'water' },
+            sun: { bg: 'linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%)', fx: 'flame' },
+            thunder: { bg: 'linear-gradient(135deg, #713f12 0%, #eab308 100%)', fx: 'thunder' },
+            insect: { bg: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)', fx: 'insect' },
+            stone: { bg: 'linear-gradient(135deg, #374151 0%, #9ca3af 100%)', fx: 'stone' },
+            love: { bg: 'linear-gradient(135deg, #831843 0%, #ec4899 100%)', fx: 'flower' },
+            mist: { bg: 'linear-gradient(135deg, #134e4a 0%, #2dd4bf 100%)', fx: 'mist' },
+            serpent: { bg: 'linear-gradient(135deg, #312e81 0%, #6366f1 100%)', fx: 'water' },
+            wind: { bg: 'linear-gradient(135deg, #064e3b 0%, #34d399 100%)', fx: 'wind' },
+            sound: { bg: 'linear-gradient(135deg, #701a75 0%, #e879f9 100%)', fx: 'sound' },
+            beast: { bg: 'linear-gradient(135deg, #334155 0%, #94a3b8 100%)', fx: 'wind' },
+            flower: { bg: 'linear-gradient(135deg, #881337 0%, #fb7185 100%)', fx: 'flower' },
+            moon: { bg: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%)', fx: 'moon' },
+            flame: { bg: 'linear-gradient(135deg, #7c2d12 0%, #fbbf24 100%)', fx: 'flame' },
+            default: { bg: 'linear-gradient(135deg, #14532d 0%, #22c55e 100%)', fx: 'mist' }
+        };
+        let currentTheme = 'default';
+
+        let settings = {
+            inhaleTime: 4, inhaleTime2: 0,
+            holdTime: 4,
+            exhaleTime: 4, exhaleTime2: 0,
+            holdAfterExhaleTime: 4,
+            pattern: 'standard'
+        };
+
+        const patternConfigs = {
+            standard: [
+                { id: 'inhaleTime', label: 'Inhale', min: 1, max: 10, step: 1 },
+                { id: 'holdTime', label: 'Hold (Full)', min: 0, max: 10, step: 1 },
+                { id: 'exhaleTime', label: 'Exhale', min: 1, max: 12, step: 1 },
+                { id: 'holdAfterExhaleTime', label: 'Hold (Empty)', min: 0, max: 10, step: 1 }
+            ],
+            double_inhale: [
+                { id: 'inhaleTime', label: 'First Inhale', min: 1, max: 8, step: 0.5 },
+                { id: 'inhaleTime2', label: 'Second (Sharp)', min: 0.5, max: 4, step: 0.5 },
+                { id: 'holdTime', label: 'Hold (Full)', min: 0, max: 10, step: 1 },
+                { id: 'exhaleTime', label: 'Exhale', min: 1, max: 12, step: 1 },
+                { id: 'holdAfterExhaleTime', label: 'Hold (Empty)', min: 0, max: 10, step: 1 }
+            ],
+            double_exhale: [
+                { id: 'inhaleTime', label: 'Inhale', min: 1, max: 10, step: 1 },
+                { id: 'holdTime', label: 'Hold (Full)', min: 0, max: 10, step: 1 },
+                { id: 'exhaleTime', label: 'First Exhale', min: 1, max: 8, step: 0.5 },
+                { id: 'exhaleTime2', label: 'Second Exhale', min: 1, max: 8, step: 0.5 },
+                { id: 'holdAfterExhaleTime', label: 'Hold (Empty)', min: 0, max: 10, step: 1 }
+            ],
+            triangle: [
+                { id: 'inhaleTime', label: 'Inhale', min: 1, max: 10, step: 1 },
+                { id: 'holdTime', label: 'Hold', min: 0, max: 10, step: 1 },
+                { id: 'exhaleTime', label: 'Exhale', min: 1, max: 12, step: 1 }
+            ]
+        };
+
+        function getPatternSteps() {
+            const s = settings;
+            if (s.pattern === 'double_inhale') return [
+                { label: 'Inhale', duration: s.inhaleTime, endSize: 72 },
+                { label: 'Inhale ++', duration: s.inhaleTime2 || 1, endSize: 80 },
+                { label: 'Hold', duration: s.holdTime, endSize: 80 },
+                { label: 'Exhale', duration: s.exhaleTime, endSize: 48 },
+                { label: 'Hold', duration: s.holdAfterExhaleTime, endSize: 48 }
+            ].filter(d => d.duration > 0);
+
+            if (s.pattern === 'double_exhale') return [
+                { label: 'Inhale', duration: s.inhaleTime, endSize: 80 },
+                { label: 'Hold', duration: s.holdTime, endSize: 80 },
+                { label: 'Exhale', duration: s.exhaleTime, endSize: 64 },
+                { label: 'Exhale ++', duration: s.exhaleTime2 || 1, endSize: 48 },
+                { label: 'Hold', duration: s.holdAfterExhaleTime, endSize: 48 }
+            ].filter(d => d.duration > 0);
+
+            if (s.pattern === 'triangle') return [
+                { label: 'Inhale', duration: s.inhaleTime, endSize: 80 },
+                { label: 'Hold', duration: s.holdTime, endSize: 80 },
+                { label: 'Exhale', duration: s.exhaleTime, endSize: 48 }
+            ].filter(d => d.duration > 0);
+
+            return [
+                { label: 'Inhale', duration: s.inhaleTime, endSize: 80 },
+                { label: 'Hold', duration: s.holdTime, endSize: 80 },
+                { label: 'Exhale', duration: s.exhaleTime, endSize: 48 },
+                { label: 'Hold', duration: s.holdAfterExhaleTime, endSize: 48 }
+            ].filter(d => d.duration > 0);
+        }
+
+        const modalTitle = confirmModal.querySelector('h3');
+        const modalBody = confirmModal.querySelector('p');
+
+        function requestChange(changeCallback, cancelCallback, isStopRequest = false) {
+            // Check if sword is OUT (unsheathed)
+            if (nichirinSword.classList.contains('unsheathed')) {
+                pauseBreathing(); // Pause while asking
+
+                // Update Modal Text based on context
+                if (isStopRequest) {
+                    modalTitle.textContent = "End Training?";
+                    modalBody.innerHTML = 'You are in the middle of training.<br><span class="text-red-400 font-bold">Progress will be lost!</span>';
+                    confirmChangeBtn.textContent = "Sheathe Blade";
+                } else {
+                    modalTitle.textContent = "Change Breathing Style?";
+                    modalBody.innerHTML = 'You are in the middle of training.<br><span class="text-red-400 font-bold">Concentration will be broken!</span>';
+                    confirmChangeBtn.textContent = "Switch Form";
+                }
+
+                confirmModal.classList.remove('hidden');
+                void confirmModal.offsetWidth;
+                confirmModal.classList.remove('opacity-0');
+                pendingAction = changeCallback;
+                pendingCancel = cancelCallback;
+            } else {
+                changeCallback();
+            }
+        }
+
+        function closeModal() {
+            confirmModal.classList.add('opacity-0');
+            setTimeout(() => confirmModal.classList.add('hidden'), 300);
+            pendingAction = null; pendingCancel = null;
+        }
+
+        confirmChangeBtn.addEventListener('click', () => {
+            const action = pendingAction;
+            closeModal();
+            resetAndRestartSafe(action);
+        });
+        cancelChangeBtn.addEventListener('click', () => { if (pendingCancel) pendingCancel(); closeModal(); startBreathing(); });
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-800 border border-gray-600 text-white px-4 py-2 rounded shadow-lg text-sm font-anime opacity-0 transform translate-y-2 transition-all duration-300 animate-fade-in-up';
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function updateTheme(themeName) {
+            currentTheme = themeName;
+
+            // Map theme to button border color
+            let color = 'green';
+            if (themeName === 'water') color = 'blue';
+            else if (themeName === 'sun') color = 'red';
+            else if (themeName === 'thunder') color = 'yellow';
+            else if (themeName === 'insect') color = 'purple';
+            else if (themeName === 'stone') color = 'gray';
+            else if (themeName === 'love') color = 'pink';
+            else if (themeName === 'mist') color = 'teal';
+            else if (themeName === 'serpent') color = 'indigo';
+            else if (themeName === 'wind') color = 'emerald';
+            else if (themeName === 'sound') color = 'fuchsia';
+            else if (themeName === 'beast') color = 'slate';
+            else if (themeName === 'flower') color = 'rose';
+            else if (themeName === 'moon') color = 'indigo';
+            else if (themeName === 'flame') color = 'orange';
+
+            // Particles
+            const themeConfig = themes[themeName] || themes.default;
+            initParticles(themeConfig.fx || 'mist');
+
+            // Apply gradient to button
+            const hexMap = {
+                water: ['#2563eb', '#1d4ed8'],
+                sun: ['#dc2626', '#b91c1c'],
+                thunder: ['#ca8a04', '#a16207'],
+                insect: ['#9333ea', '#7e22ce'],
+                stone: ['#4b5563', '#374151'],
+                love: ['#db2777', '#be185d'],
+                mist: ['#0d9488', '#0f766e'],
+                serpent: ['#4f46e5', '#4338ca'],
+                wind: ['#10b981', '#059669'],
+                sound: ['#c026d3', '#a21caf'],
+                beast: ['#64748b', '#475569'],
+                flower: ['#e11d48', '#be123c'],
+                moon: ['#4338ca', '#312e81'],
+                flame: ['#ea580c', '#c2410c'],
+                default: ['#16a34a', '#15803d']
+            };
+            const [c1, c2] = hexMap[themeName] || hexMap.default;
+            // Removed non-existent startBtn reference
+
+            // Apply Aura Color
+            let auraColorClass = '';
+            if (themeName === 'water') auraColorClass = 'text-blue-500';
+            else if (themeName === 'sun') auraColorClass = 'text-red-500';
+            else if (themeName === 'thunder') auraColorClass = 'text-yellow-400';
+            else if (themeName === 'insect') auraColorClass = 'text-purple-500';
+            else if (themeName === 'stone') auraColorClass = 'text-gray-400';
+            else if (themeName === 'love') auraColorClass = 'text-pink-500';
+            else if (themeName === 'mist') auraColorClass = 'text-teal-400';
+            else if (themeName === 'serpent') auraColorClass = 'text-indigo-500';
+            else if (themeName === 'wind') auraColorClass = 'text-emerald-500';
+            else if (themeName === 'sound') auraColorClass = 'text-fuchsia-500';
+            else if (themeName === 'beast') auraColorClass = 'text-slate-400';
+            else if (themeName === 'flower') auraColorClass = 'text-rose-500';
+            else if (themeName === 'moon') auraColorClass = 'text-indigo-600';
+            else if (themeName === 'flame') auraColorClass = 'text-orange-500';
+            else auraColorClass = 'text-green-500';
+
+            // Remove old color classes
+            breathingCircle.className = breathingCircle.className.replace(/text-\w+-\d+/g, '');
+            breathingCircle.classList.add(auraColorClass);
+
+            // --- BLADE VISUALS ---
+            if (bladeElement) {
+                bladeElement.className = 'blade'; // Reset base class
+                let fxClass = 'fx-black'; // Default to Jet Black (Custom)
+
+                if (themeName === 'sun') fxClass = 'fx-sun';
+                else if (themeName === 'water') fxClass = 'fx-water';
+                else if (themeName === 'flame') fxClass = 'fx-flame';
+                else if (themeName === 'thunder') fxClass = 'fx-thunder';
+                else if (themeName === 'wind') fxClass = 'fx-wind';
+                else if (themeName === 'stone') fxClass = 'fx-stone';
+                else if (themeName === 'insect') fxClass = 'fx-insect';
+                else if (themeName === 'moon') fxClass = 'fx-moon';
+                else if (themeName === 'mist') fxClass = 'fx-mist';
+                else if (themeName === 'serpent') fxClass = 'fx-serpent';
+                else if (themeName === 'flower') fxClass = 'fx-flower';
+                else if (themeName === 'sound') fxClass = 'fx-sound';
+                else if (themeName === 'beast') fxClass = 'fx-beast';
+                else if (themeName === 'love') fxClass = 'fx-flower';
+                else if (themeName === 'default') fxClass = 'fx-black';
+
+                bladeElement.classList.add(fxClass);
+            }
+        }
+
+        window.applyPresetWrapper = function (type) { requestChange(() => applyPreset(type), () => { }); }
+
+        function applyPreset(type) {
+            allPresetButtons.forEach(btn => btn.classList.remove('border-white', 'ring-1', 'ring-white', 'bg-opacity-100'));
+            const btn = document.getElementById('preset-' + type);
+            if (btn) btn.classList.add('border-white', 'ring-1', 'ring-white');
+
+            let presetName = "";
+            let theme = "default";
+
+            settings.inhaleTime2 = 0; settings.exhaleTime2 = 0;
+
+            if (type === 'calm') {
+                presetName = "Water Surface Slash"; theme = "water";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 4, exhaleTime: 4, holdAfterExhaleTime: 4 };
+            } else if (type === 'sleep') {
+                presetName = "Stone Meditation"; theme = "stone";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 7, exhaleTime: 8, holdAfterExhaleTime: 0 };
+            } else if (type === 'reset') {
+                presetName = "Butterfly Dance"; theme = "insect";
+                settings = { ...settings, pattern: 'double_inhale', inhaleTime: 2.5, inhaleTime2: 1.5, holdTime: 1, exhaleTime: 6, holdAfterExhaleTime: 0 };
+            } else if (type === 'panic') {
+                presetName = "Thunderclap & Flash"; theme = "thunder";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 0, exhaleTime: 8, holdAfterExhaleTime: 0 };
+            } else if (type === 'balance') {
+                presetName = "Love Harmony"; theme = "love";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 5, holdTime: 0, exhaleTime: 5, holdAfterExhaleTime: 0 };
+            } else if (type === 'sadness') {
+                presetName = "Clear Blue Sky"; theme = "sun";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 6, holdTime: 0, exhaleTime: 2, holdAfterExhaleTime: 0 };
+            } else if (type === 'focus') {
+                presetName = "Mist Obscuring"; theme = "mist";
+                settings = { ...settings, pattern: 'triangle', inhaleTime: 4, holdTime: 4, exhaleTime: 4 };
+            } else if (type === '7_11') {
+                presetName = "Serpent Coil"; theme = "serpent";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 7, holdTime: 0, exhaleTime: 11, holdAfterExhaleTime: 0 };
+            } else if (type === 'wind') {
+                presetName = "Dust Whirlwind"; theme = "wind";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 2, exhaleTime: 4, holdAfterExhaleTime: 2 };
+            } else if (type === 'sound') {
+                presetName = "Musical Score"; theme = "sound";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 1, exhaleTime: 4, holdAfterExhaleTime: 1 };
+            } else if (type === 'beast') {
+                presetName = "Fang Over Fang"; theme = "beast";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 0, exhaleTime: 4, holdAfterExhaleTime: 0 };
+            } else if (type === 'flower') {
+                presetName = "Vermilion Eye"; theme = "flower";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 4, holdTime: 4, exhaleTime: 6, holdAfterExhaleTime: 0 };
+            } else if (type === 'moon') {
+                presetName = "Chaotic Blades"; theme = "moon";
+                settings = { ...settings, pattern: 'double_exhale', inhaleTime: 4, holdTime: 2, exhaleTime: 4, exhaleTime2: 2, holdAfterExhaleTime: 0 };
+            } else if (type === 'flame') {
+                presetName = "Unknowing Fire"; theme = "flame";
+                settings = { ...settings, pattern: 'standard', inhaleTime: 5, holdTime: 5, exhaleTime: 5, holdAfterExhaleTime: 5 };
+            }
+
+            updateTheme(theme);
+            renderSliders();
+
+            // Immediate UI Refresh
+            const steps = getPatternSteps();
+            if (steps.length > 0) {
+                breatheText.textContent = 'Ready';
+                phaseTimer.textContent = steps[0].duration;
+                phaseTimer.classList.remove('opacity-0'); // Ensure visible
+                // Reset state so sheathing sheathes correctly or next start is fresh
+                currentStepIndex = 0;
+                stepStartTime = 0;
+            }
+
+            showToast(`Form Selected: ${presetName}`);
+        };
+
+        function renderSliders() {
+            const config = patternConfigs[settings.pattern] || patternConfigs['standard'];
+            dynamicSlidersContainer.innerHTML = '';
+
+            config.forEach(item => {
+                const wrapper = document.createElement('div');
+                const header = document.createElement('label');
+                header.className = "flex justify-between text-sm font-anime text-gray-400 mb-1";
+
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = item.label;
+                const valueSpan = document.createElement('span');
+                valueSpan.className = "text-white font-bold";
+                valueSpan.textContent = settings[item.id] + 's';
+                valueSpan.id = `val-${item.id}`;
+
+                header.appendChild(labelSpan); header.appendChild(valueSpan);
+
+                const input = document.createElement('input');
+                input.type = 'range';
+                input.className = "w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500 hover:accent-green-400";
+                input.min = item.min; input.max = item.max; input.step = item.step;
+                input.value = settings[item.id] || 0;
+
+                input.addEventListener('input', (e) => {
+                    const newVal = parseFloat(e.target.value);
+                    const oldVal = settings[item.id];
+                    if (isBreathing) {
+                        requestChange(() => {
+                            settings[item.id] = newVal; document.getElementById(`val-${item.id}`).textContent = newVal + 's';
+                            showToast("Technique Refined");
+                        }, () => { e.target.value = oldVal; });
+                    } else {
+                        settings[item.id] = newVal; document.getElementById(`val-${item.id}`).textContent = newVal + 's';
+                    }
+                });
+
+                wrapper.appendChild(header); wrapper.appendChild(input);
+                dynamicSlidersContainer.appendChild(wrapper);
+            });
+            patternSelect.value = settings.pattern;
+        }
+
+        patternSelect.addEventListener('change', (e) => {
+            const val = e.target.value; const old = settings.pattern;
+            requestChange(() => { settings.pattern = val; renderSliders(); showToast("Form Changed"); }, () => { e.target.value = old; });
+        });
+
+        sessionDurationSelect.addEventListener('change', function () {
+            const v = parseInt(this.value); sessionDuration = v === -1 ? -1 : v * 60;
+            if (isBreathing) { resetProgress(); startProgress(); }
+            showToast("Duration Updated");
+        });
+
+        const nichirinSword = document.getElementById('nichirinSword');
+        const bladeElement = document.getElementById('bladeElement');
+        const bladeStatusText = document.getElementById('bladeStatusText');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const sidebarTimerContainer = document.getElementById('sidebarTimerContainer');
+        const sidebarTimer = document.getElementById('sidebarTimer');
+
+        function toggleBreathingState() {
+            // If sword is sheathed (not breathing OR paused/reset state where we hid it)
+            if (!nichirinSword.classList.contains('unsheathed')) {
+                // Not breathing, sword in -> Unsheathe & Start
+                nichirinSword.classList.add('unsheathed');
+                bladeStatusText.classList.remove('invisible');
+                bladeStatusText.textContent = "Total Concentration Constant";
+                startBreathing();
+            } else {
+                // Sword is OUT.
+                if (isBreathing) {
+                    // Running -> Pause
+                    pauseBreathing();
+                    bladeStatusText.textContent = "Training Paused - Click to Resume";
+                    showToast("Training Paused");
+                } else {
+                    // Paused -> Resume
+                    startBreathing();
+                    bladeStatusText.textContent = "Total Concentration Constant";
+                    showToast("Resuming...");
+                }
+            }
+        }
+
+        // Override updateTheme to handle Sword FX
+        function resetAndRestartSafe(updateAction) {
+            resetBreathing();
+            setTimeout(() => {
+                if (updateAction) updateAction();
+                // Ensure UI reflects the new form immediately even if sheathed
+                const firstStep = getPatternSteps()[0];
+                if (firstStep) {
+                    breatheText.textContent = 'Ready';
+                    phaseTimer.textContent = firstStep.duration;
+                }
+                showToast("Technique Ready");
+            }, 700);
+        }
+
+        stopBtn.addEventListener('click', () => {
+            requestChange(() => {
+                stopBreathing();
+            }, () => { }, true); // isStopRequest = true
+        });
+
+
+        function startBreathing() {
+            isBreathing = true;
+            sessionStats.classList.remove('opacity-0'); phaseTimer.classList.remove('opacity-0');
+            stopBtn.classList.remove('hidden');
+            pauseBtn.classList.remove('hidden');
+            pauseBtn.textContent = "Pause";
+            sidebarTimerContainer.classList.remove('hidden');
+            sidebarTimerContainer.classList.add('flex');
+
+            // Sword Logic (Visuals)
+            nichirinSword.classList.add('unsheathed');
+            bladeStatusText.classList.remove('invisible');
+
+            // Resume Only Logic: check if timer already running or steps progressed
+            if (breathingInterval) clearInterval(breathingInterval);
+            if (progressTimer) clearInterval(progressTimer);
+
+            // If we are resuming (elapsedTime > 0), don't reset step variables
+            // The breathingLoop uses stepStartTime. If we paused, stepStartTime is stale.
+            // We need to adjust stepStartTime to account for the pause duration.
+            // Actually, simpler: reset stepStartTime to Now - (duration - remaining).
+
+            // For now, let's just restart the current step if paused to avoid complex math drift,
+            // or simply just run loop.
+            const steps = getPatternSteps();
+            const currentStep = steps[currentStepIndex];
+
+            // If starting fresh
+            if (!stepStartTime) {
+                stepStartTime = Date.now();
+                startStep(currentStep); // Start visual
+            } else {
+                // Resuming: we need to reset the start time so the elapsed calc is correct
+                // We know 'phaseTimer' holds the remaining seconds roughly. 
+                // Let's just restart the step visual for smoothness.
+                stepStartTime = Date.now() - ((currentStep.duration - parseInt(phaseTimer.textContent)) * 1000);
+                // Re-apply visual state for current step?
+                // Actually startStep animates from 0 usually. 
+                // Let's just let the loop catch up.
+            }
+
+            breathingInterval = setInterval(breathingLoop, 40);
+            startProgress();
+        }
+
+        function pauseBreathing() {
+            isBreathing = false;
+            clearInterval(breathingInterval);
+            clearInterval(progressTimer);
+            pauseBtn.textContent = "Resume";
+            showToast("Training Paused");
+        }
+
+        pauseBtn.addEventListener('click', () => {
+            if (isBreathing) {
+                pauseBreathing();
+            } else {
+                startBreathing();
+            }
+        });
+
+        // ... stopBreathing ...
+
+        // Alias stopBreathing to resetBreathing for clarity in other calls
+        function stopBreathing() { resetBreathing(); }
+
+        function resetBreathing() {
+            pauseBreathing();
+            currentStepIndex = 0;
+            stepStartTime = 0;
+            breatheText.textContent = 'Ready';
+            // Use current settings for initial reset state
+            const steps = getPatternSteps();
+            if (steps.length > 0) phaseTimer.textContent = steps[0].duration;
+            innerCircle.style.width = '60%'; innerCircle.style.height = '60%'; breathingCircle.style.transform = 'scale(1)';
+            if (focusElement) focusElement.style.transform = 'scale(1)'; // Reset transform
+            sessionStats.classList.add('opacity-0'); phaseTimer.classList.add('opacity-0');
+            stopBtn.classList.add('hidden');
+            pauseBtn.classList.add('hidden');
+            sidebarTimerContainer.classList.add('hidden');
+            sidebarTimerContainer.classList.remove('flex');
+            resetProgress();
+
+            // Sword Logic (Force Sheathe)
+            nichirinSword.classList.remove('unsheathed');
+            bladeStatusText.classList.add('invisible');
+
+            // Text Reset
+            breatheText.classList.remove('text-6xl', 'text-demon-green', 'text-red-500', 'text-blue-500', 'animate-impact-zoom');
+            breatheText.classList.add('text-4xl', 'text-gray-800');
+        }
+
+        function startStep(step) {
+            breatheText.textContent = step.label;
+
+            // Impact Text Effect
+            breatheText.style.animation = 'none';
+            breatheText.offsetHeight; /* trigger reflow */
+            breatheText.style.animation = 'impactZoom 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards';
+
+            // Dynamic text color based on phase
+            if (step.label.includes('Inhale')) breatheText.classList.add('text-blue-400');
+            else if (step.label.includes('Exhale')) breatheText.classList.add('text-red-400');
+            else breatheText.classList.remove('text-blue-400', 'text-red-400');
+
+            innerCircle.style.transition = `all ${step.duration}s cubic-bezier(0.4, 0, 0.2, 1)`;
+            requestAnimationFrame(() => {
+                innerCircle.style.width = `${step.endSize}%`;
+                innerCircle.style.height = `${step.endSize}%`;
+                const outerScale = 1 + ((step.endSize - 60) / 300);
+                breathingCircle.style.transform = `scale(${outerScale})`;
+            });
+            const theme = themes[currentTheme] || themes.default;
+            breathingCircle.style.background = theme.bg;
+            if (focusElement) focusElement.style.background = theme.bg;
+        }
+
+        function breathingLoop() {
+            const steps = getPatternSteps();
+            const currentStep = steps[currentStepIndex];
+            const now = Date.now();
+            const elapsed = (now - stepStartTime) / 1000;
+            const remaining = Math.ceil(currentStep.duration - elapsed);
+            phaseTimer.textContent = remaining > 0 ? remaining : 0;
+
+            if (elapsed >= currentStep.duration) {
+                currentStepIndex++;
+                if (currentStepIndex >= steps.length) currentStepIndex = 0;
+                stepStartTime = Date.now();
+                startStep(steps[currentStepIndex]);
+            }
+        }
+
+        function startProgress() {
+            if (sessionDuration === -1) {
+                sidebarTimer.textContent = '∞';
+                progressBar.style.width = '100%';
+                return;
+            }
+            if (!isBreathing) return;
+            let start = Date.now(); if (elapsedTime > 0) start = Date.now() - (elapsedTime * 1000);
+            progressTimer = setInterval(() => {
+                elapsedTime = Math.floor((Date.now() - start) / 1000);
+                const rem = sessionDuration - elapsedTime;
+                if (rem <= 0) { resetBreathing(); return; }
+                const m = Math.floor(rem / 60); const s = rem % 60;
+                const timeStr = `${m}:${s.toString().padStart(2, '0')}`;
+                sidebarTimer.textContent = timeStr;
+                progressBar.style.width = `${(elapsedTime / sessionDuration) * 100}%`;
+            }, 1000);
+        }
+
+        function resetProgress() {
+            clearInterval(progressTimer); progressBar.style.width = '0%'; elapsedTime = 0; sidebarTimer.textContent = '0:00';
+        }
+
+        resetProgress();
+        // Initial Theme & UI state
+        applyPreset('calm'); 
+    </script>
+</body>
+
+</html>
