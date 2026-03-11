@@ -970,6 +970,11 @@ const DocManager = {
     },
 
     showWellnessAnalyser() {
+        if (!AuthManager.isLoggedIn) {
+            alert("Please log in to access the Wellness.ai Analyser.");
+            AuthManager.openLoginModal();
+            return;
+        }
         document.getElementById('dm-selection').classList.add('hidden');
         document.getElementById('dm-wellness-screen').classList.remove('hidden');
         document.getElementById('dm-wellness-report').classList.add('hidden');
