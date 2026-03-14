@@ -830,7 +830,7 @@ function generatePDF(e) {
 
         // intern info box
         let iy = ty + 22;
-        const boxH = 52;
+        const boxH = 66;
         doc.setFillColor(20, 25, 60);
         doc.roundedRect(18, iy, TW, boxH, 3, 3, 'F');
         doc.setFillColor(...C.accent); doc.roundedRect(18, iy, 3, boxH, 1.5, 1.5, 'F');
@@ -840,6 +840,8 @@ function generatePDF(e) {
             ['Institution', intern.institution || 'Not specified'],
             ['Grade / Year', intern.grade || 'Not specified'],
             ['Date', dateStr || 'Not specified'],
+            ['Start Date', intern.startDate ? new Date(intern.startDate).toLocaleDateString('en-IN') : 'Not specified'],
+            ['End Date', intern.endDate ? new Date(intern.endDate).toLocaleDateString('en-IN') : 'Not specified'],
             ['Facilitator', intern.facilitator || 'Not specified'],
             ['Programme', 'FSPW Pvt. Ltd. Internship']
         ];
@@ -847,7 +849,7 @@ function generatePDF(e) {
         const colW2 = TW / 2 - 4;
         infoItems.forEach(([lbl, val], idx) => {
             const cx = idx % 2 === 0 ? ix : ix + colW2 + 4;
-            const cy2 = idx < 2 ? iiy : idx < 4 ? iiy + 14 : iiy + 28;
+            const cy2 = idx < 2 ? iiy : idx < 4 ? iiy + 14 : idx < 6 ? iiy + 28 : iiy + 42;
             if (idx % 2 === 0 || idx < infoItems.length) {
                 doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.gray);
                 doc.text(lbl.toUpperCase(), cx, cy2);
@@ -889,7 +891,7 @@ function generatePDF(e) {
         doc.line(ML, y, ML + 45, y); y += 12;
 
         try {
-            doc.addImage('vectorised-image.png', 'PNG', W - 12 - 30, y - 5, 30, 30);
+            doc.addImage('vectorised-image.png', 'PNG', W - 12 - 22, y - 5, 22, 22);
         } catch (e) {}
 
         const aboutFspw = "First Step Pediatric Wellness (FSPW) represents the vanguard of healthcare innovation, seamlessly blending deep medical expertise with cutting-edge Artificial Intelligence. Our foundation is built upon years of elite research conducted at prestigious international medical institutes, resulting in groundbreaking tools that are redefining pediatric healthcare globally.\n\nWe are more than just a company; we are a mission-driven organization committed to social equity. By providing free, high-quality healthcare to underprivileged communities, we ensure that the future of wellness is accessible to every child, regardless of background.";
