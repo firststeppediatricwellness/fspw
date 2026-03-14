@@ -889,13 +889,13 @@ function generatePDF(e) {
         doc.line(ML, y, ML + 45, y); y += 12;
 
         try {
-            doc.addImage('vectorised-image.png', 'PNG', W - MR - 30, y - 5, 30, 30);
+            doc.addImage('vectorised-image.png', 'PNG', W - 12 - 30, y - 5, 30, 30);
         } catch (e) {}
 
         const aboutFspw = "First Step Pediatric Wellness (FSPW) represents the vanguard of healthcare innovation, seamlessly blending deep medical expertise with cutting-edge Artificial Intelligence. Our foundation is built upon years of elite research conducted at prestigious international medical institutes, resulting in groundbreaking tools that are redefining pediatric healthcare globally.\n\nWe are more than just a company; we are a mission-driven organization committed to social equity. By providing free, high-quality healthcare to underprivileged communities, we ensure that the future of wellness is accessible to every child, regardless of background.";
         
         doc.setFontSize(10.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.body);
-        const fspwLines = doc.splitTextToSize(aboutFspw, TW - 40);
+        const fspwLines = doc.splitTextToSize(aboutFspw, TW - 48);
         fspwLines.forEach(l => { check(7); doc.text(l, ML, y); y += 6.2; });
         
         y += 4;
