@@ -317,6 +317,27 @@ const CURRICULUM = [
         ]
     },
     {
+        topic: "Final Project Review & Submission",
+        subtopics: ["Project Showcase", "Final Feedback"],
+        objectives: [
+            "Present your final project to the facilitator and peers",
+            "Incorporate feedback into your final submission",
+            "Reflect on the growth achieved throughout the programme",
+            "Complete final administrative and reporting requirements"
+        ],
+        intro: "As you reach the culmination of your internship, today is dedicated to showcasing your hard work and the innovations you've developed. This is an opportunity to receive high-level feedback and refine your outputs for final submission.",
+        sections: [
+            { title: "The Power of Final Review", body: "Continuous improvement is a core tenet of professional excellence. Your final review is not just a conclusion, but a gateway to applying your skills in even more complex environments." }
+        ]
+    },
+    {
+        topic: "Conclusion & Letter to the World",
+        subtopics: ["Programme Completion"],
+        objectives: [],
+        intro: "Dear Reader,\n\nI am writing to share how the FSPW Internship Programme has fundamentally transformed my capability and outlook. Through the 'School of Champions,' I have been enabled to see problems as opportunities and to build solutions with empathy and precision.\n\nThis program doesn't just teach skills; it builds the character and resilience of a pioneer. Anyone who engages with this curriculum is not just an intern, but a future leader being enabled by a world-class framework of innovation and wellness.\n\nThe benefits are lifelong: a sharpened mind, an empowered heart, and a professional toolkit that is ready for any challenge.",
+        sections: []
+    },
+    {
         topic: "Internship Certificate",
         subtopics: ["Certification of Completion", "Programme Validation"],
         objectives: [
@@ -368,6 +389,7 @@ function openDay(day) {
     document.getElementById('dv-title').textContent = 'Day ' + day + ' | ' + data.topic;
     document.getElementById('dv-sub').textContent = data.subtopics.join(' | ') + ' · Complete your daily report';
     document.getElementById('learn-list').innerHTML = data.objectives.map(o => `<li>${o}</li>`).join('');
+    document.getElementById('learn-box').style.display = (data.objectives.length === 0) ? 'none' : 'block';
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
     resetForm();
 
@@ -376,7 +398,7 @@ function openDay(day) {
     const sections = form.querySelectorAll('.fsec, .fg');
     let isDetails = true;
     sections.forEach(el => {
-        if (day === 0 || day === 21) {
+        if (day === 0 || day === 22 || day === 23) {
             if (el.classList.contains('fsec') && (el.textContent.includes('Activity Log') || el.textContent.includes('Personal Reflection'))) isDetails = false;
             el.style.display = isDetails ? 'flex' : 'none';
         } else {
@@ -427,7 +449,7 @@ function resetForm() {
 // ============================================================
 function getStartPage(day) {
     if (day === 0) return 1;
-    return 4 * day; // Day 1->4, Day 2->8, Day 20->80
+    return 3 * day - 2; // Day 1->1, Day 2->4, Day 21->61, Day 22->64
 }
 
 // ============================================================
@@ -465,6 +487,9 @@ function generatePDF(e) {
         institution: (document.getElementById('f-institution') || { value: '' }).value.trim(),
         grade: (document.getElementById('f-grade') || { value: '' }).value.trim(),
         facilitator: document.getElementById('f-facilitator').value.trim(),
+        duration: (document.getElementById('f-duration') || { value: '' }).value.trim(),
+        startDate: (document.getElementById('f-start-date') || { value: '' }).value,
+        endDate: (document.getElementById('f-end-date') || { value: '' }).value,
         activities: getDlItems('dl-activities'),
         concepts: getDlItems('dl-concepts'),
         actNote: getDlItems('dl-notes'),
@@ -483,7 +508,7 @@ function generatePDF(e) {
         { id: 'dl-apply', name: 'How You Will Apply This' }
     ];
 
-    if (currentDay > 0 && currentDay < 21) {
+    if (currentDay > 0 && currentDay <= 21) {
         for (const list of lists) {
             const items = getDlItems(list.id);
             if (items.length < 3) {
@@ -524,7 +549,9 @@ function generatePDF(e) {
         doc.rect(0, H - 10, W, 7, 'F');
         doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.gray);
         doc.text(`FSPW Pvt. Ltd. | Internship Programme | Reg No: U86904KA2025PTC212490`, ML, H - 5.5);
-        doc.text(`Page ${absPage}`, W - MR, H - 5.5, { align: 'center' });
+        if (currentDay !== 0) {
+            doc.text(`Page ${absPage}`, W - MR, H - 5.5, { align: 'center' });
+        }
     }
 
     function drawSignature(name, x, y) {
@@ -616,7 +643,7 @@ function generatePDF(e) {
     // ============================================================
     // PAGE 1: COVER / CERTIFICATE
     // ============================================================
-    if (currentDay === 21) {
+    if (currentDay === 21 || currentDay === 23) {
         // ============================================================
         // HARVARD-STYLE CERTIFICATE (DAY XX)
         // ============================================================
@@ -713,23 +740,24 @@ function generatePDF(e) {
 
         doc.setFontSize(14); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.mid);
         doc.text('Comprehensive Programme Documentation', ML, 142);
-        doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.accent);
-        doc.text('SCHOOL OF CHAMPIONS', ML, 150);
         doc.setFontSize(13); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.gray);
-        doc.text('Official Internship Academic Record', ML, 158);
+        doc.text('Official Internship Record', ML, 150);
 
         // Participant Information Box
-        let iy = 200;
+        let iy = 175;
+        const infoH = 65;
         doc.setFillColor(248, 250, 255);
-        doc.rect(ML, iy, TW, 60, 'F');
+        doc.rect(ML, iy, TW, infoH, 'F');
         doc.setDrawColor(...C.border); doc.setLineWidth(0.5);
-        doc.rect(ML, iy, TW, 60, 'S');
+        doc.rect(ML, iy, TW, infoH, 'S');
 
         iy += 10;
         const info = [
             ['PARTICIPANT', intern.name],
             ['INSTITUTION', intern.institution || 'N/A'],
-            ['DURATION', '6 MONTHS']
+            ['DURATION', intern.duration || '6 MONTHS'],
+            ['START DATE', intern.startDate ? new Date(intern.startDate).toLocaleDateString('en-IN') : 'N/A'],
+            ['END DATE', intern.endDate ? new Date(intern.endDate).toLocaleDateString('en-IN') : 'N/A']
         ];
 
         info.forEach(([lbl, val]) => {
@@ -783,8 +811,6 @@ function generatePDF(e) {
         doc.text('FSPW PVT. LTD.', 32, 17);
         doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.gray);
         doc.text('Internship Programme', 32, 21);
-        doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.accent2);
-        doc.text('School of Champions', 32, 25);
 
         // gold line
         doc.setDrawColor(...C.gold); doc.setLineWidth(0.8);
@@ -869,7 +895,7 @@ function generatePDF(e) {
         const aboutFspw = "First Step Pediatric Wellness (FSPW) represents the vanguard of healthcare innovation, seamlessly blending deep medical expertise with cutting-edge Artificial Intelligence. Our foundation is built upon years of elite research conducted at prestigious international medical institutes, resulting in groundbreaking tools that are redefining pediatric healthcare globally.\n\nWe are more than just a company; we are a mission-driven organization committed to social equity. By providing free, high-quality healthcare to underprivileged communities, we ensure that the future of wellness is accessible to every child, regardless of background.";
         
         doc.setFontSize(10.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.body);
-        const fspwLines = doc.splitTextToSize(aboutFspw, TW - 20);
+        const fspwLines = doc.splitTextToSize(aboutFspw, TW - 40);
         fspwLines.forEach(l => { check(7); doc.text(l, ML, y); y += 6.2; });
         
         y += 4;
@@ -1010,25 +1036,6 @@ function generatePDF(e) {
         doc.setDrawColor(...C.accent); doc.setLineWidth(1.2);
         doc.line(ML, y, ML + 60, y); y += 9;
 
-        // Header entries (cover, ack, ToC)
-        const tocHeaderItems = [
-            ['Programme Cover & Overview', '1'],
-            ['Acknowledgement', '2'],
-            ['Table of Contents', '3'],
-        ];
-        tocHeaderItems.forEach(([title, pg]) => {
-            check(7);
-            doc.setFontSize(8.5); doc.setFont('helvetica', 'italic'); doc.setTextColor(...C.mid);
-            doc.text(title, ML + 6, y);
-            const tw = doc.getTextWidth(title);
-            const dotsEnd = W - MR - 12;
-            doc.setTextColor(...C.border);
-            for (let dx = ML + 6 + tw + 2; dx < dotsEnd; dx += 3) doc.text('.', dx, y);
-            doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.mid);
-            doc.text(pg, W - MR, y, { align: 'right' });
-            y += 6.5;
-        });
-
         // Curriculum header bar
         y += 2;
         doc.setFillColor(...C.navy);
@@ -1038,11 +1045,11 @@ function generatePDF(e) {
         doc.text('PAGE', W - MR - 2, y + 5, { align: 'right' });
         y += 11;
 
-        // One row per day
-        CURRICULUM.forEach((d, idx) => {
+        // One row per day (1 to 21)
+        for (let idx = 1; idx <= 21; idx++) {
+            const d = CURRICULUM[idx];
             const n = idx;
-            // Day 0 at p1; Day N>=1 cover at 4N
-            const pg = n === 0 ? 1 : 4 * n;
+            const pg = 3 * n - 2;
             check(8);
             // Alternating row background
             if (idx % 2 === 0) {
@@ -1064,15 +1071,60 @@ function generatePDF(e) {
             doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.accent);
             doc.text(String(pg), W - MR, y, { align: 'right' });
             y += 7.5;
-        });
+        }
+
+        // Conclusion row (with extra spacing)
+        y += 5; 
+        const conclusionIdx = 22;
+        const conclusionData = CURRICULUM[conclusionIdx];
+        check(8);
+
+        doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.body);
+        doc.text(conclusionData.topic, ML + 18, y);
+        const twC = doc.getTextWidth(conclusionData.topic);
+        const dotsEndC = W - MR - 12;
+        doc.setTextColor(...C.border);
+        for (let dx = ML + 18 + twC + 2; dx < dotsEndC; dx += 3) doc.text('.', dx, y);
+        doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.accent);
+        doc.text('64', W - MR, y, { align: 'right' });
+        y += 7.5;
+
+        footerStrip();
+    }
+
+    function drawConclusionLetterPage() {
+        addPage();
+        doc.setFillColor(...C.white); doc.rect(0, 0, W, H, 'F');
+
+        // header strip
+        doc.setFillColor(...C.navy); doc.rect(0, 0, W, 16, 'F');
+        doc.setFillColor(...C.accent); doc.rect(0, 0, 5, H, 'F');
+        doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.white);
+        doc.text('FIRST STEP PEDIATRIC WELLNESS  |  FSPW PVT. LTD.  |  INTERNSHIP PROGRAMME', 12, 10);
+
+        y = 35;
+        doc.setFontSize(22); doc.setFont('helvetica', 'black'); doc.setTextColor(...C.navy);
+        doc.text('Letter to the World', ML, y); y += 4;
+        doc.setDrawColor(...C.accent); doc.setLineWidth(1.5);
+        doc.line(ML, y, ML + 65, y); y += 15;
+
+        const letter = CURRICULUM[22].intro;
+        para(letter, 11, C.body);
+
+        y += 24;
+        doc.setFontSize(10.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...C.navy);
+        doc.text('Sincerely,', ML, y); y += 7;
+        doc.text(intern.name, ML, y); y += 5;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...C.mid);
+        doc.text('Graduate of the School of Champions', ML, y);
 
         footerStrip();
     }
 
     // ============================================================
-    // CONTENT PAGES (Day 1-20 only)
+    // CONTENT PAGES (Day 1-21)
     // ============================================================
-    if (currentDay > 0 && currentDay < 21) {
+    if (currentDay > 0 && currentDay <= 21) {
         addPage();
         doc.setFillColor(...C.white); doc.rect(0, 0, W, H, 'F');
         doc.setFillColor(...C.navy); doc.rect(0, 0, W, 14, 'F');
@@ -1105,9 +1157,11 @@ function generatePDF(e) {
         divider();
     });
 
-    // Activity Log
-    addPage();
-    sectionBar('Activity Log', [80, 50, 180]);
+    // Activity Log & Reflection (always shown for days 1-21)
+    {
+        // Activity Log
+        addPage();
+        sectionBar('Activity Log', [80, 50, 180]);
     label('Summary of Today\'s Activities', intern.activities);
     label('Key Concepts Understood', intern.concepts);
     label('Group / Individual Activity Notes', intern.actNote);
@@ -1118,16 +1172,20 @@ function generatePDF(e) {
     label('Most Impactful Learning', intern.impact);
     label('Challenges Encountered', intern.challenges);
     label('How I Will Apply This', intern.apply);
-    divider();
-}
+        divider();
+    }
+    } else if (currentDay === 22) {
+        drawConclusionLetterPage();
+    }
 
     // end of report
 
     // Apply footer to all pages
     const totalPgs = doc.getNumberOfPages();
     for (let p = 1; p <= totalPgs; p++) {
+        if (currentDay === 23) continue; // Certificate has no footer/pg
         doc.setPage(p);
-        if (p === 1) continue; // cover handled separately
+        if (p === 1 && currentDay === 0) continue; // day 0 cover has no footer
         footerStrip(p);
     }
 
