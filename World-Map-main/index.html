@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Interactive World Map</title>
+    <!-- Linking CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>World Explorer</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="map-container">
+            <!-- Embedded SVG Map -->
+            <object 
+                id="world-map" 
+                type="image/svg+xml" 
+                data="assets/world_modified_hover.svg" 
+                aria-label="Interactive World Map">
+            </object>
+        </div>
+
+        <!-- Sidebar for Country Details -->
+        <aside id="country-details" class="sidebar hidden">
+            <h2 id="country-name">Country Name</h2>
+            <ul>
+                <li><strong>Capital:</strong> <span id="country-capital">Capital City</span></li>
+                <li><strong>Time (IST):</strong> <span id="country-time">Local Time</span></li>
+                <li><strong>Population:</strong> <span id="country-population">Population</span></li>
+                <!-- Weather section removed as requested -->
+            </ul>
+            <button id="close-sidebar" aria-label="Close Country Details Sidebar">Close</button>
+        </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 World Explorer. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Linking JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

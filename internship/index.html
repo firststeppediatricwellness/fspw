@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Programme | FSPW Pvt. Ltd.</title>
+    <meta name="description"
+        content="FSPW Young Entrepreneur & Life Skills Internship | Structured program for students.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #05070f;
+            --bg2: #080c1a;
+            --surface: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #eef2ff;
+            --muted: #7b87a0;
+            --accent: #5b52f0;
+            --accent2: #9b8cf7;
+            --gold: #d4a017;
+            --emerald: #0ea47a;
+            --rose: #e63f5e;
+            --amber: #d97706;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 50% at 15% 10%, rgba(91, 82, 240, .15) 0%, transparent 60%), 
+                        radial-gradient(ellipse 50% 40% at 85% 85%, rgba(155, 140, 247, .1) 0%, transparent 60%),
+                        linear-gradient(180deg, #05070f 0%, #080c1a 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow); }
+            50% { text-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow); }
+        }
+
+        /* HEADER */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 7, 15, .9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: .9rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .hdr-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .hdr-logo svg {
+            width: 20px;
+            height: 20px;
+            stroke: #fff;
+            fill: none;
+        }
+
+        .hdr-text .t1 {
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .hdr-text .t2 {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .hdr-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .hdr-help {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .6rem 1rem;
+            background: rgba(155, 140, 247, 0.12);
+            border: 1px solid rgba(155, 140, 247, 0.3);
+            border-radius: 9px;
+            color: var(--accent2);
+            font-size: .82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .hdr-help:hover {
+            background: rgba(155, 140, 247, 0.2);
+            border-color: var(--accent2);
+            transform: translateY(-1px);
+        }
+
+        .hdr-back {
+            margin-left: auto;
+            padding: .45rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            font-size: .78rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hdr-back:hover {
+            color: var(--text);
+            border-color: rgba(255, 255, 255, .2);
+        }
+
+        /* MAIN */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* HERO */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .35rem .9rem;
+            border-radius: 99px;
+            background: rgba(91, 82, 240, .15);
+            border: 1px solid rgba(91, 82, 240, .3);
+            color: var(--accent2);
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 1.4rem;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 800;
+            margin: 0 0 0.2rem 0;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 20%, var(--accent2), #5b52f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(91, 82, 240, 0.2));
+        }
+
+        .hero-sub {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            animation: glowPulse 3s infinite ease-in-out;
+            background: linear-gradient(to right, #9b8cf7, #fff, #9b8cf7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            max-width: 540px;
+            margin: 0 auto;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        /* GRID */
+        .section-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 1.4rem;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+            gap: 1.1rem;
+        }
+
+        .day-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 1.8rem 1.5rem;
+            cursor: pointer;
+            transition: all .4s cubic-bezier(.23, 1, 0.32, 1);
+            overflow: hidden;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+
+        .day-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity .4s;
+            z-index: 0;
+        }
+
+        .day-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(155, 140, 247, 0.4);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .day-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .day-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .day-num-label {
+            font-size: .65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            margin-bottom: .6rem;
+            color: var(--accent2);
+        }
+
+        .day-big {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: .35rem;
+            line-height: 1;
+        }
+
+        .day-topic {
+            font-size: .76rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .day-sub {
+            font-size: .66rem;
+            color: var(--muted);
+            opacity: .7;
+            margin-top: .4rem;
+            line-height: 1.4;
+        }
+
+        .card-arr {
+            position: absolute;
+            bottom: 1.1rem;
+            right: 1.1rem;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translateX(-5px);
+            transition: all .25s;
+        }
+
+        .day-card:hover .card-arr {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Colour groups */
+        .g1 {
+            --ca: #5b52f0;
+            --cb: rgba(91, 82, 240, .35);
+        }
+
+        .g2 {
+            --ca: #0ea47a;
+            --cb: rgba(14, 164, 122, .35);
+        }
+
+        .g3 {
+            --ca: #d97706;
+            --cb: rgba(217, 119, 6, .35);
+        }
+
+        .g4 {
+            --ca: #e63f5e;
+            --cb: rgba(230, 63, 94, .35);
+        }
+
+        .day-card:hover {
+            border-color: var(--cb);
+            box-shadow: 0 18px 40px color-mix(in srgb, var(--ca) 18%, transparent);
+        }
+
+        .day-num-label {
+            color: var(--ca);
+        }
+
+        .card-arr {
+            background: color-mix(in srgb, var(--ca) 20%, transparent);
+            color: var(--ca);
+        }
+
+        /* DOC VIEW */
+        #doc-view {
+            display: none;
+            animation: fadeUp .38s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .dv-top {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .dv-back {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .55rem .95rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .dv-back:hover {
+            color: var(--text);
+            border-color: rgba(255, 255, 255, .2);
+        }
+
+        .dv-badge {
+            padding: .35rem 1rem;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(91, 82, 240, .2), rgba(155, 140, 247, .15));
+            border: 1px solid rgba(91, 82, 240, .35);
+            color: var(--accent2);
+        }
+
+        .dv-title {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: .25rem;
+        }
+
+        .dv-sub {
+            font-size: .83rem;
+            color: var(--muted);
+        }
+
+        /* LEARN BOX */
+        .learn-box {
+            background: linear-gradient(135deg, rgba(91, 82, 240, .12), rgba(155, 140, 247, .07));
+            border: 1px solid rgba(91, 82, 240, .25);
+            border-radius: 14px;
+            padding: 1.2rem 1.4rem;
+            margin-bottom: 2rem;
+        }
+
+        .learn-box h4 {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--accent2);
+            margin-bottom: .8rem;
+        }
+
+        .learn-box ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .learn-box li {
+            font-size: .85rem;
+            color: var(--text);
+            display: flex;
+            align-items: flex-start;
+            gap: .6rem;
+            line-height: 1.5;
+        }
+
+        .learn-box li::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent2);
+            flex-shrink: 0;
+            margin-top: .4rem;
+        }
+
+        /* FORM */
+        .doc-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.1rem;
+        }
+
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: .45rem;
+        }
+
+        .fg.fw {
+            grid-column: 1/-1;
+        }
+
+        .fg label {
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .fg label .req {
+            color: var(--rose);
+        }
+
+        .fg input,
+        .fg select,
+        .fg textarea {
+            width: 100%;
+            padding: .8rem 1rem;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: .88rem;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .fg input:focus,
+        .fg select:focus,
+        .fg textarea:focus {
+            border-color: rgba(91, 82, 240, .5);
+            box-shadow: 0 0 0 3px rgba(91, 82, 240, .1);
+        }
+
+        .fg select {
+            background-color: #090c1a;
+            cursor: pointer;
+        }
+
+        .fg select option {
+            background: #090c1a;
+        }
+
+        .fg textarea {
+            resize: vertical;
+            min-height: 95px;
+            line-height: 1.6;
+        }
+
+        .fsec {
+            grid-column: 1/-1;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--accent2);
+            padding-top: .6rem;
+            border-top: 1px solid var(--border);
+            margin-top: .4rem;
+        }
+
+        .fdiv {
+            grid-column: 1/-1;
+            height: 1px;
+            background: var(--border);
+            margin: .2rem 0;
+        }
+
+        /* STARS */
+        .stars {
+            display: flex;
+            gap: .4rem;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform .15s;
+            filter: grayscale(1) opacity(.35);
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .star:hover,
+        .star.on {
+            filter: none;
+            transform: scale(1.2);
+        }
+
+        /* DYNAMIC LISTS */
+        .dl-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .dl-item {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        .dl-counter {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .dl-counter.limit {
+            color: var(--rose);
+            border-color: rgba(230, 63, 94, 0.3);
+            background: rgba(230, 63, 94, 0.05);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .dl-rm {
+            width: 38px;
+            height: 38px;
+            background: rgba(230, 63, 94, 0.1);
+            border: 1px solid rgba(230, 63, 94, 0.2);
+            color: var(--rose);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .dl-rm:hover {
+            background: var(--rose);
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .dl-add {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed var(--border);
+            border-radius: 9px;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            width: fit-content;
+        }
+
+        .dl-add:hover {
+            color: var(--accent2);
+            border-color: var(--accent2);
+            background: rgba(155, 140, 247, 0.05);
+            transform: translateY(-1px);
+        }
+
+        /* ACTIONS */
+        .dv-actions {
+            display: flex;
+            gap: .9rem;
+            margin-top: 1.8rem;
+            grid-column: 1/-1;
+        }
+
+        .btn-pri {
+            flex: 1;
+            padding: .95rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            box-shadow: 0 6px 20px rgba(91, 82, 240, .3);
+        }
+
+        .btn-pri:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(91, 82, 240, .4);
+        }
+
+        .btn-sec {
+            padding: .9rem 1.4rem;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--muted);
+            font-family: 'Inter', sans-serif;
+            font-size: .87rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-sec:hover {
+            color: var(--text);
+            border-color: rgba(255, 255, 255, .2);
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: .9rem 1.4rem;
+            background: rgba(14, 164, 122, .15);
+            border: 1px solid rgba(14, 164, 122, .4);
+            border-radius: 13px;
+            color: #34d399;
+            font-weight: 600;
+            font-size: .85rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all .4s cubic-bezier(.175, .885, .32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media(max-width:640px) {
+            .doc-form {
+                grid-template-columns: 1fr;
+            }
+
+            .fg.fw {
+                grid-column: 1;
+            }
+
+            .dv-actions {
+                flex-direction: column;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .days-grid {
+                grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+                gap: .8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="hdr-logo">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+        </div>
+        <div class="hdr-text">
+            <div class="t1">First Step Pediatric Wellness</div>
+            <div class="t2">Internship Programme | FSPW Pvt. Ltd.</div>
+        </div>
+        <div class="hdr-actions">
+            <button class="hdr-help" onclick="toggleHelp()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/>
+                </svg>
+                Help &amp; Guide
+            </button>
+            <a href="../index.html" class="hdr-back">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Main Site
+            </a>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- CARDS VIEW -->
+        <div id="cards-view">
+            <div class="hero">
+                <div class="hero-badge">Vanguard of Innovation | FSPW</div>
+                <h1>Internship Programme</h1>
+                <div class="hero-sub">School of Champions</div>
+                <p>An elite life skills and entrepreneurship curriculum for the next generation of pioneers. Start your journey today.</p>
+            </div>
+            <div class="section-label">Program Calendar | Select a day to open your report</div>
+            <div class="days-grid" id="days-grid"></div>
+        </div>
+
+        <!-- DOC VIEW -->
+        <div id="doc-view">
+            <div class="dv-top">
+                <button class="dv-back" onclick="showCards()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    All Days
+                </button>
+                <div class="dv-badge" id="dv-badge">Day 1</div>
+            </div>
+            <div style="margin-bottom:1.8rem;">
+                <div class="dv-title" id="dv-title">Daily Report</div>
+                <div class="dv-sub" id="dv-sub">Complete all fields and generate your PDF</div>
+            </div>
+
+            <div class="learn-box" id="learn-box">
+                <h4>What You Will Learn Today</h4>
+                <ul id="learn-list"></ul>
+            </div>
+
+            <form id="report-form" class="doc-form" onsubmit="generatePDF(event)">
+
+                <div class="fsec">Intern Details</div>
+
+                <div class="fg"><label>Full Name <span class="req">*</span></label>
+                    <input type="text" id="f-name" placeholder="Your full name" required>
+                </div>
+                <div class="fg"><label>Date <span class="req">*</span></label>
+                    <input type="date" id="f-date" required>
+                </div>
+                <div class="fg"><label>Institution / School <span class="req">*</span></label>
+                    <input type="text" id="f-institution" required placeholder="Your school or college">
+                </div>
+                <div class="fg"><label>Grade / Year <span class="req">*</span></label>
+                    <input type="text" id="f-grade" required placeholder="e.g. Grade 10 / 2nd Year">
+                </div>
+                <div class="fg fw"><label>Facilitator Name <span class="req">*</span></label>
+                    <input type="text" id="f-facilitator" required value="Ananthan V M" placeholder="e.g. Dr. Ngamnui Wangsa">
+                </div>
+                <div class="fg"><label>Duration <span class="req">*</span></label>
+                    <input type="text" id="f-duration" required placeholder="e.g. 6 Months" value="6 Months">
+                </div>
+                <div class="fg"><label>Start Date <span class="req">*</span></label>
+                    <input type="date" id="f-start-date" required>
+                </div>
+                <div class="fg"><label>End Date <span class="req">*</span></label>
+                    <input type="date" id="f-end-date" required>
+                </div>
+
+                <div class="fsec">Activity Log</div>
+
+                <div class="fg fw">
+                    <label>Summary of Today's Activities <span class="req">*</span></label>
+                    <div class="dl-wrap" id="dl-activities"></div>
+                </div>
+                <div class="fg fw">
+                    <label>Key Concepts Understood</label>
+                    <div class="dl-wrap" id="dl-concepts"></div>
+                </div>
+                <div class="fg fw">
+                    <label>Group / Individual Activity Notes</label>
+                    <div class="dl-wrap" id="dl-notes"></div>
+                </div>
+
+                <div class="fsec">Personal Reflection</div>
+
+                <div class="fg fw"><label>Most Impactful Learning</label>
+                    <div class="dl-wrap" id="dl-impact"></div>
+                </div>
+                <div class="fg fw">
+                    <label>Challenges Encountered</label>
+                    <div class="dl-wrap" id="dl-challenges"></div>
+                </div>
+                <div class="fg fw">
+                    <label>How Will You Apply This?</label>
+                    <div class="dl-wrap" id="dl-apply"></div>
+                </div>
+
+
+                <div class="dv-actions">
+                    <button type="submit" class="btn-pri">
+                        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Generate &amp; Download PDF Report
+                    </button>
+                    <button type="button" class="btn-sec" onclick="resetForm()">Clear</button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <div class="toast" id="toast">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        PDF downloaded successfully!
+    </div>
+
+    <!-- HELP MODAL -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-hdr">
+                <h3>Internship Guide &amp; Support</h3>
+                <button class="modal-close" onclick="toggleHelp()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="help-step">
+                    <div class="step-num">01</div>
+                    <div class="step-info">
+                        <h4>Complete Your Report</h4>
+                        <p>Fill in all mandatory fields accurately. Use professional language. <br><strong>Each section below requires 3 points each.</strong></p>
+                        
+                        <div class="field-guide">
+                            <div class="fg-item">
+                                <strong>1. Activities Summary:</strong> List the main tasks you performed today. (e.g., "Analysed a case study on market research").
+                            </div>
+                            <div class="fg-item">
+                                <strong>2. Key Concepts:</strong> What were the main theories or terms learned? (e.g., "SWOT Analysis", "Neural Coupling").
+                            </div>
+                            <div class="fg-item">
+                                <strong>3. Activity Notes:</strong> Details about specific group work or individual exercises you handled.
+                            </div>
+                            <div class="fg-item">
+                                <strong>4. Impactful Learning:</strong> What was the most important takeaway for you personally?
+                            </div>
+                            <div class="fg-item">
+                                <strong>5. Challenges:</strong> Mention any difficulties (technical or conceptual) and how you navigated them.
+                            </div>
+                            <div class="fg-item">
+                                <strong>6. Application:</strong> How will you use these specific skills in your future career or projects?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-step">
+                    <div class="step-num">02</div>
+                    <div class="step-info">
+                        <h4>Upload for Validation</h4>
+                        <p>Once you generate your PDF report, it must be submitted for formal record-keeping:</p>
+                        <ul class="help-list">
+                            <li>Upload the finished PDF to the shared <strong>Google Drive</strong> link.</li>
+                            <li>If you don't know the Drive link, please ask your instructor immediately.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-notice">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Reports submitted late or with incomplete reflections may not be eligible for full programme credits.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 14, 38, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: flex-start; /* Start from top for scrolling */
+            justify-content: center;
+            padding: 2rem 1rem;
+            opacity: 0;
+            transition: opacity .3s;
+            overflow-y: auto; /* Enable overlay scrolling */
+        }
+        .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: var(--help-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px;
+            border: 1px solid rgba(155, 140, 247, 0.2);
+            overflow: visible; /* Allow sticky header or just let it scroll */
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            margin: auto; /* Center when content is short */
+            transform: translateY(20px);
+            transition: transform .3s;
+        }
+        .modal-overlay.open .modal-content {
+            transform: translateY(0);
+        }
+        .modal-hdr {
+            padding: 1.2rem 1.8rem;
+            background: #252d56; /* Slightly lighter than help-bg */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-radius: 20px 20px 0 0;
+        }
+        .modal-hdr h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+        }
+        .modal-close:hover {
+            background: rgba(230, 63, 94, 0.2);
+            border-color: rgba(230, 63, 94, 0.4);
+            color: #ff4d6d;
+        }
+        .modal-body {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+        .help-step {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .step-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent2);
+            opacity: 0.4;
+            line-height: 1;
+        }
+        .step-info h4 {
+            margin: 0 0 .5rem 0;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .step-info p {
+            font-size: .88rem;
+            color: var(--muted);
+            margin: 0 0 1.2rem 0;
+            line-height: 1.6;
+        }
+        .field-guide {
+            display: flex;
+            flex-direction: column;
+            gap: .8rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+        .fg-item {
+            font-size: .8rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .fg-item strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .help-list {
+            margin: 0;
+            padding: 0 0 0 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+        }
+        .help-list li {
+            font-size: .85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .help-list li strong {
+            color: var(--accent2);
+        }
+        .help-notice {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            padding: 1rem;
+            background: rgba(155, 140, 247, 0.05);
+            border-radius: 12px;
+            color: var(--accent2);
+            font-size: .82rem;
+            line-height: 1.4;
+            border: 1px solid rgba(155, 140, 247, 0.1);
+        }
+    </style>
+
+    <script>
+        // Dynamic list helpers (defined before internship.js so they are available)
+        function addDlItem(id, placeholder, limit, limitType = 'char') {
+            const wrap = document.getElementById(id);
+            if (!wrap) return;
+            if (wrap.children.length >= 6) {
+                const toast = document.getElementById('toast');
+                toast.textContent = "Maximum of 6 items allowed per section.";
+                toast.style.background = "rgba(230, 63, 94, 0.15)";
+                toast.style.color = "#ff4d6d";
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.textContent = "PDF downloaded successfully!";
+                        toast.style.background = "";
+                        toast.style.color = "";
+                    }, 400);
+                }, 2000);
+                return;
+            }
+            const div = document.createElement('div');
+            div.className = 'dl-item';
+            const mlAttr = (limit && limitType === 'char') ? `maxlength="${limit}"` : '';
+            let html = `<input type="text" placeholder="${placeholder}" ${mlAttr}>`;
+            if (limit) {
+                html += `<span class="dl-counter">0 / ${limit}</span>`;
+            }
+            div.innerHTML = html;
+            
+            const inp = div.querySelector('input');
+            const ctr = div.querySelector('.dl-counter');
+            
+            if (limit && ctr) {
+                const updateCounter = () => {
+                    let count = 0;
+                    if (limitType === 'char') {
+                        count = inp.value.length;
+                    } else {
+                        const words = inp.value.trim().split(/\s+/).filter(Boolean);
+                        count = words.length;
+                    }
+                    ctr.textContent = `${count} / ${limit} ${limitType === 'word' ? 'words' : ''}`;
+                    if (count >= limit) ctr.classList.add('limit');
+                    else ctr.classList.remove('limit');
+                };
+                inp.oninput = updateCounter;
+                setTimeout(updateCounter, 0); 
+            }
+            
+            wrap.appendChild(div);
+            inp.focus();
+        }
+        function getDlItems(id) {
+            return Array.from((document.getElementById(id) || { querySelectorAll: () => [] }).querySelectorAll('input'))
+                .map(i => i.value.trim()).filter(Boolean);
+        }
+        function initDlField(id, placeholder, count = 1, limit, limitType = 'char') {
+            const wrap = document.getElementById(id);
+            if (wrap) wrap.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                addDlItem(id, placeholder, limit, limitType);
+            }
+        }
+    </script>
+    <script src="internship.js"></script>
+</body>
+
+</html>

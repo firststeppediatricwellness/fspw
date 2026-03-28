@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDRS Daily Insight Report | FSPW</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <!-- PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-navy: #0A1F44;
+            --accent-gold: #D4AF37;
+            --deep-blue: #003366;
+            --light-gold: #FDF9E7;
+            --light-grey: #F8FAFC;
+            --medium-grey: #E2E8F0;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+            --white: #FFFFFF;
+            --header-stripe-height: 24px;
+            --sidebar-width: 320px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: #F1F5F9;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        /* --- 3-Column Layout --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-right: 1px solid var(--medium-grey);
+            z-index: 2000;
+            overflow-y: auto;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .left-sidebar { left: 0; border-right: 1px solid var(--medium-grey); border-left: none; box-shadow: 20px 0 50px rgba(0,0,0,0.05); }
+
+        /* --- Main Report Content --- */
+        #report-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            background-color: #F1F5F9;
+        }
+
+        #report-content {
+            width: 210mm;
+            background: var(--white);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .page-container {
+            width: 210mm;
+            height: 297mm;
+            padding: 30mm 20mm 25mm 20mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* --- Signature Blue Header Stripe --- */
+        .page-header-stripe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-stripe-height);
+            background: linear-gradient(90deg, var(--deep-blue), var(--primary-navy));
+            z-index: 100;
+        }
+
+        .gold-border-thin {
+            position: absolute;
+            top: var(--header-stripe-height);
+            left: 0;
+            width: 100%;
+            height: 2.5px;
+            background: var(--accent-gold);
+            z-index: 100;
+        }
+
+        /* --- Page Management --- */
+        .section {
+            margin-bottom: 2rem;
+            break-inside: avoid;
+        }
+
+
+        .force-page-top {
+            page-break-before: always;
+        }
+
+        /* Clean Capture for PDF */
+        body.is-exporting {
+            background: #fff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+        body.is-exporting .sidebar {
+            display: none !important;
+        }
+        body.is-exporting .no-print {
+            display: none !important;
+        }
+        body.is-exporting #report-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+            background: #fff !important;
+        }
+        body.is-exporting #report-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            width: 210mm !important;
+            transform: none !important;
+        }
+        body.is-exporting .page-container {
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            page-break-after: always !important;
+        }
+        body.is-exporting .page-container:last-of-type {
+            page-break-after: auto !important;
+        }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            html, body { margin: 0; padding: 0; background: none; }
+            .sidebar { display: none !important; }
+            #report-wrapper { margin: 0; padding: 0; background: none; width: 100%; display: block; }
+            #report-content { margin: 0; box-shadow: none; width: 210mm !important; border:none; }
+            .no-print { display: none !important; }
+            
+            input, textarea, select {
+                border: none !important;
+                background: none !important;
+                padding: 0 !important;
+                appearance: none !important;
+                resize: none !important;
+                color: var(--text-dark) !important;
+                width: 100% !important;
+            }
+            ::placeholder { color: transparent !important; }
+
+            .page-container {
+                padding: 30mm 20mm 25mm 20mm !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                page-break-after: always;
+                border: none;
+                overflow: hidden;
+            }
+        }
+
+        /* --- Sidebar UI Elements --- */
+        .sidebar-title {
+            font-size: 1.4rem;
+            font-weight: 950;
+            color: var(--primary-navy);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--accent-gold);
+            text-align: center;
+            letter-spacing: -1px;
+        }
+
+        .sidebar-section-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            background: #fff;
+            border: 1px solid var(--medium-grey);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .doc-item:hover { border-color: var(--accent-gold); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .doc-item.active { border-color: var(--primary-navy); background: rgba(10, 31, 68, 0.03); }
+        .doc-item svg { color: var(--primary-navy); flex-shrink: 0; }
+        
+        .doc-status {
+            display: none;
+        }
+
+        .review-controls {
+            margin-top: auto;
+            border-top: 1px solid var(--medium-grey);
+            padding-top: 2rem;
+        }
+
+        .dash-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--primary-navy);
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .dash-btn:hover { background: var(--deep-blue); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(10,31,68,0.2); }
+        .dash-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        /* --- Report Header & Page Design (Premium Overhaul) --- */
+        .cover-page {
+            justify-content: flex-start;
+            padding-top: 15mm;
+            text-align: center;
+            background: radial-gradient(circle at 50% -20%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+                        radial-gradient(circle at 50% 120%, rgba(10, 31, 68, 0.05) 0%, transparent 70%);
+        }
+        .logo-container { margin-bottom: 2rem; }
+        .logo-container img { max-width: 160px; height: auto; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1)); }
+        
+        .company-name { 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            color: var(--primary-navy); 
+            letter-spacing: 10px; 
+            text-transform: uppercase; 
+            margin-bottom: 2.5rem; 
+            margin-top: 1.5rem;
+            opacity: 0.9;
+            position: relative;
+            display: inline-block;
+        }
+        .company-name::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--accent-gold);
+        }
+
+        .program-title { 
+            font-size: 2.8rem; 
+            color: var(--primary-navy); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: -0.5px; 
+            margin-bottom: 1.5rem; 
+            line-height: 1; 
+            max-width: 85%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .subpoint-list { 
+            margin-bottom: 3rem; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            align-items: center; 
+        }
+        .subpoint-item { 
+            font-size: 1.1rem; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .student-box { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(15px); 
+            padding: 2.5rem; 
+            text-align: left; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2.5rem; 
+            margin: 0 auto; 
+            width: 100%; 
+            max-width: 760px; 
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-left: 15px solid var(--primary-navy); 
+            border-radius: 8px; 
+            box-shadow: 0 30px 60px rgba(10, 31, 68, 0.12);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .info-block label {
+            display: block; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            font-weight: 900; 
+            letter-spacing: 2.5px; 
+            margin-bottom: 0.75rem;
+        }
+
+        .info-input { 
+            width: 100%; 
+            border: none; 
+            background: transparent; 
+            font-size: 1.3rem; 
+            font-weight: 800; 
+            color: var(--primary-navy); 
+            padding-bottom: 4px; 
+            border-bottom: 2px solid transparent; 
+        }
+
+        .stars { color: var(--accent-gold); font-size: 1.6rem; cursor: pointer; display: flex; gap: 6px; }
+        .star-filled::before { content: '\2605'; }
+        .star-empty::before { content: '\2606'; opacity: 0.35; }
+
+        .cover-mission-tagline { 
+            width: calc(100% - 40mm);
+            position: absolute;
+            bottom: 30mm;
+            left: 20mm;
+            text-align: center;
+        }
+        .global-footer {
+            width: calc(100% - 40mm);
+            position: absolute;
+            bottom: 12mm;
+            left: 20mm;
+            text-align: center;
+        }
+        .footer-tagline {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .footer-tagline-main {
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--primary-navy);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .footer-tagline-sub {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+        .footer-bottom {
+            padding-top: 1.5rem; 
+            border-top: 2px solid var(--medium-grey); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            font-size: 0.75rem; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            letter-spacing: 2px; 
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- CONSOLIDATED LEFT SIDEBAR: DATA ENTRY & CONTROLS -->
+    <div class="sidebar left-sidebar no-print">
+        <div class="sidebar-title">Management Desktop</div>
+        
+        <!-- Field-based input -->
+        <div class="review-group">
+            <span class="sidebar-section-label">Student Information</span>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 2rem;">
+                <div class="info-block">
+                    <label style="display:block; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:1.5px; margin-bottom:0.4rem;">Student Name</label>
+                    <input type="text" id="input-name" class="doc-item" style="width: 100%;" value="Aryan Sharma" oninput="syncSidebar('name', this.value)">
+                </div>
+                <div class="info-block">
+                    <label style="display:block; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:1.5px; margin-bottom:0.4rem;">Grade & Section</label>
+                    <input type="text" id="input-grade" class="doc-item" style="width: 100%;" value="10th - B" oninput="syncSidebar('grade', this.value)">
+                </div>
+                <div class="info-block">
+                    <label style="display:block; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:1.5px; margin-bottom:0.4rem;">Report Date</label>
+                    <input type="text" id="input-date" class="doc-item" style="width: 100%;" value="" oninput="syncSidebar('date', this.value)">
+                </div>
+                <div class="info-block">
+                    <label style="display:block; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:1.5px; margin-bottom:0.4rem;">Mentor Name</label>
+                    <input type="text" id="input-mentor" class="doc-item" style="width: 100%;" value="Mr. Ananthan V M" oninput="syncSidebar('mentor', this.value)">
+                </div>
+                <div class="info-block">
+                    <label style="display:block; font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:1.5px; margin-bottom:0.4rem;">Parents WhatsApp Number</label>
+                    <input type="text" id="input-whatsapp" class="doc-item" style="width: 100%;" placeholder="e.g. 919876543210" spellcheck="false">
+                    <div style="font-size: 0.65rem; color: #d97706; margin-top: 0.5rem; font-weight: 600; line-height: 1.3;">
+                        Note: Browser security requires manual PDF attachment in WhatsApp.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Report Desk moved to bottom -->
+        <div class="review-controls" style="margin-top: auto;">
+            <div class="sidebar-title" style="font-size: 1.1rem; margin-bottom: 1rem; border-bottom: 2px solid var(--accent-gold);">Report Desk</div>
+            
+            <label class="sidebar-section-label">Attendance Status</label>
+            <select id="attendanceToggle" onchange="updateReport()" style="width:100%; padding:1rem; border-radius:12px; border:1px solid var(--medium-grey); font-family:inherit; margin-bottom:1.5rem; font-weight:700; background:var(--light-grey); cursor:pointer;">
+                <option value="Present">Present (Full Report)</option>
+                <option value="Absent">Absent (Cover Only)</option>
+            </select>
+
+            <button id="downloadBtn" onclick="downloadPDF()" class="dash-btn" style="margin-bottom: 1.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Export PDF</span>
+            </button>
+
+            <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center; line-height: 1.6;">
+                Premium 300 DPI Rendering.<br>
+                MAP Workflow Optimized.
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN REPORT WRAPPER -->
+    <div id="report-wrapper">
+        <div id="report-content">
+            <!-- PAGE 1: COVER -->
+            <div class="page-container cover-page" id="page-cover">
+                <div class="page-header-stripe"></div>
+                <div class="gold-border-thin"></div>
+
+                <div class="company-name">FSPW Pvt. Ltd.</div>
+
+                <div class="program-title">
+                    <span style="display:block; font-size: 1.2rem; color: var(--accent-gold); letter-spacing: 5px; margin-bottom: 0.5rem; font-weight: 800;">DAILY INSIGHT REPORT</span>
+                    MAP <span style="font-weight: 300; opacity: 0.7;">|</span> <span style="font-weight: 400; font-size: 0.85em; letter-spacing: 1px;">Mentorship for Academic Progress</span>
+                </div>
+                <div class="subpoint-list">
+                    <div class="subpoint-item">Same-Day Reinforcement System (SDRS)</div>
+                    <div class="subpoint-item">Student Dozen Metrics (Dozmetrics)</div>
+                </div>
+
+                <div class="student-box">
+                    <div class="info-block">
+                        <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:2.2px; margin-bottom:0.75rem;">Student Name</label>
+                        <input type="text" class="info-input" value="Aryan Sharma" spellcheck="false" oninput="syncFields('name', this.value)">
+                    </div>
+                    <div class="info-block">
+                        <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:2.2px; margin-bottom:0.75rem;">Grade & Section</label>
+                        <input type="text" class="info-input" value="10th - B" spellcheck="false">
+                    </div>
+                    <div class="info-block">
+                        <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:2.2px; margin-bottom:0.75rem;">Report Date</label>
+                        <input type="text" id="report-date" class="info-input" value="" spellcheck="false" oninput="syncFields('date', this.value)">
+                    </div>
+                    <div class="info-block">
+                        <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:2.2px; margin-bottom:0.75rem;">Head of Department</label>
+                        <input type="text" id="report-mentor" class="info-input" value="Mr. Ananthan V M" spellcheck="false" oninput="syncFields('mentor', this.value)">
+                    </div>
+                    <div class="info-block" style="display: flex; align-items: center; justify-content: space-between;">
+                        <label style="margin:0; font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:2.2px;">Status</label>
+                        <div id="status-badge-area"></div>
+                    </div>
+                </div>
+
+
+                <div class="cover-mission-tagline">
+                    <div class="footer-tagline">
+                        <span class="footer-tagline-main">No More Doubts Left Behind</span>
+                        <span class="footer-tagline-sub">from daily learning to exam confidence</span>
+                    </div>
+                </div>
+                <div class="global-footer">
+                    <div class="footer-bottom">
+                        <span>FSPW Pvt. Ltd.</span>
+                        <span class="sync-date">17 March, 2026</span>
+                        <span>Confidential</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: LEARNING SUMMARY -->
+            <div id="reportBody">
+                <!-- Learning summary pages will be injected here dynamically -->
+
+                <!-- IMPACT PAGES (Injected dynamically) -->
+                <div id="impact-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const impactMetrics = [
+            {
+                category: "1. Cognitive Ability (How the child THINKS)",
+                metrics: [
+                    { label: "Independent Problem Solving", rating: 4 },
+                    { label: "Problem Solving Ability", rating: 4 },
+                    { label: "Application of Concepts", rating: 4 },
+                    { label: "Concept Clarity", rating: 4 }
+                ]
+            },
+            {
+                category: "2. Learning Efficiency (How the child LEARNS)",
+                metrics: [
+                    { label: "Grasping Speed", rating: 4 },
+                    { label: "Speed & Accuracy", rating: 4 },
+                    { label: "Doubt Reduction", rating: 4 },
+                    { label: "Learning Consistency", rating: 4 }
+                ]
+            },
+            {
+                category: "3. Engagement & Behavior (How the child PARTICIPATES)",
+                metrics: [
+                    { label: "Focus & Attention", rating: 4 },
+                    { label: "Class Participation", rating: 4 },
+                    { label: "Answering Confidence", rating: 4 }
+                ]
+            },
+            {
+                category: "4. Outcome & Impact (What the child ACHIEVES)",
+                metrics: [
+                    { label: "Overall Daily Progress", rating: 4 }
+                ]
+            }
+        ];
+
+        let learningItemCount = 0;
+
+        function initReport() {
+            // Set Today's Date
+            const today = new Date();
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const dateStr = today.toLocaleDateString('en-GB', options);
+            
+            const dateInput = document.getElementById('input-date');
+            if (dateInput) {
+                dateInput.value = dateStr;
+                syncSidebar('date', dateStr);
+            }
+
+            renderImpact();
+            addItem('learning-list', 'learning', 'Mathematics', 'Linear Equations', 'Solved 10 complex word problems focusing on the substitution and elimination methods.');
+            updateReport();
+        }
+
+        function renderImpact() {
+            const container = document.getElementById('impact-container');
+            const date = document.querySelector('#input-date')?.value || '17 March, 2026';
+            
+            const renderPage = (catIndices, isCont, hasSignature = false) => {
+                const categoriesHtml = catIndices.map(catIdx => {
+                    const cat = impactMetrics[catIdx];
+                    return `
+                        <div class="impact-category" style="margin-top: 1.5rem; margin-bottom: 0.75rem;">
+                            <h3 style="font-size: 1rem; color: var(--primary-navy); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; border-left: 6px solid var(--accent-gold); padding-left: 12px; margin: 0;">${cat.category}</h3>
+                        </div>
+                        ${cat.metrics.map((m, mIdx) => `
+                            <div class="impact-item" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--medium-grey); padding:0.55rem 0;">
+                                <span style="font-weight:700; font-size:1rem; color: var(--text-dark);">${m.label}</span>
+                                <div class="stars" onclick="setRating(${catIdx}, ${mIdx}, event)">
+                                    ${Array.from({length: 5}, (_, i) => 
+                                        `<span class="star ${i < m.rating ? 'star-filled' : 'star-empty'}" data-val="${i+1}"></span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                }).join('');
+
+                const signatureHtml = hasSignature ? `
+                    <div class="signature-section" style="margin-top: 2rem; display: flex; flex-direction: column; align-items: flex-end; padding-right: 2rem;">
+                        <span style="font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: var(--primary-navy); margin-bottom: -10px; width: 220px; text-align: center; display: inline-block;">Ananthan</span>
+                        <div style="border-top: 1.5px solid var(--primary-navy); width: 220px; text-align: center; margin-top: 5px; padding-top: 5px;">
+                            <span style="font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--primary-navy);">HOD's Signature</span>
+                        </div>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="page-container force-page-top">
+                        <div class="page-header-stripe"></div>
+                        <div class="gold-border-thin"></div>
+                        <div class="section">
+                            <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:4px solid var(--accent-gold); padding-bottom:1.25rem; margin-bottom:2rem;">
+                                <h2 style="font-size:1.6rem; font-weight:950; color:var(--primary-navy); text-transform:uppercase; letter-spacing:3px; margin:0;">Today's Impact (Dozmetrics) ${isCont ? '(Cont.)' : ''}</h2>
+                            </div>
+                            <div class="impact-grid">
+                                ${categoriesHtml}
+                            </div>
+                            ${signatureHtml}
+                        </div>
+                        <div class="global-footer">
+                            <div class="footer-bottom">
+                                <span>FSPW Pvt. Ltd.</span>
+                                <span class="sync-date">${date}</span>
+                                <span>Confidential</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            container.innerHTML = renderPage([0, 1], false) + renderPage([2, 3], true, true);
+        }
+
+        function setRating(catIdx, mIdx, e) {
+            if (e.target.classList.contains('star')) {
+                impactMetrics[catIdx].metrics[mIdx].rating = parseInt(e.target.dataset.val);
+                renderImpact();
+            }
+        }
+
+        function addItem(containerId, type, subject = '', topic = '', work = '') {
+            const wrapper = document.getElementById('reportBody');
+            
+            // Check if we need a new page
+            let currentPage;
+            if (learningItemCount % 3 === 0) {
+                currentPage = document.createElement('div');
+                currentPage.className = 'page-container force-page-top';
+                currentPage.innerHTML = `
+                    <div class="page-header-stripe"></div>
+                    <div class="gold-border-thin"></div>
+                    <div class="section">
+                        <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:4px solid var(--accent-gold); padding-bottom:1.25rem; margin-bottom:3rem;">
+                            <h2 style="font-size:1.6rem; font-weight:950; color:var(--primary-navy); text-transform:uppercase; letter-spacing:3px; margin:0;">Today's Learning Summary (SDRS) ${learningItemCount > 0 ? '(Cont.)' : ''}</h2>
+                            <button class="add-btn no-print" style="background:#fff; border:2px solid var(--primary-navy); color:var(--primary-navy); padding:0.7rem 1.4rem; border-radius:8px; font-weight:900; font-size:0.8rem; text-transform:uppercase; cursor:pointer;" onclick="addItem('learning-list', 'learning')">+ Add Subject</button>
+                        </div>
+                        <div class="items-holder"></div>
+                    </div>
+                    <div class="global-footer">
+                        <div class="footer-bottom">
+                            <span>FSPW Pvt. Ltd.</span>
+                            <span class="sync-date">${document.querySelector('#input-date')?.value || '17 March, 2026'}</span>
+                            <span>Confidential</span>
+                        </div>
+                    </div>
+                `;
+                // Insert before the impact container
+                const impactContainer = document.getElementById('impact-container');
+                wrapper.insertBefore(currentPage, impactContainer);
+            } else {
+                const impactContainer = document.getElementById('impact-container');
+                currentPage = impactContainer.previousElementSibling;
+            }
+
+            const itemsHolder = currentPage.querySelector('.items-holder');
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.style.padding = '2rem';
+            div.style.marginBottom = '1.5rem';
+            div.style.border = '1px solid var(--medium-grey)';
+            div.style.borderLeft = '10px solid var(--primary-navy)';
+            div.style.background = '#fff';
+            div.style.position = 'relative';
+            
+            div.innerHTML = `
+                <button class="no-print" style="position:absolute; top:10px; right:10px; background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" onclick="removeItem(this)">&times;</button>
+                <div style="display:grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: center;">
+                    <span style="font-weight:900; color:var(--text-muted); text-transform:uppercase; font-size:0.8rem;">Subject</span>
+                    <input class="info-input" style="font-size:1.1rem; color:var(--primary-navy);" value="${subject}" spellcheck="false">
+                    <span style="font-weight:900; color:var(--text-muted); text-transform:uppercase; font-size:0.8rem;">Topic</span>
+                    <input class="info-input" style="font-size:1.1rem;" value="${topic}" spellcheck="false">
+                    <span style="font-weight:900; color:var(--text-muted); text-transform:uppercase; font-size:0.8rem;">Outcome</span>
+                    <input class="info-input" style="font-size:1.1rem;" value="${work}" maxlength="30" spellcheck="false">
+                </div>
+            `;
+            itemsHolder.appendChild(div);
+            learningItemCount++;
+        }
+
+        function removeItem(btn) {
+            if (learningItemCount <= 1) {
+                alert('At least one learning summary must be present.');
+                return;
+            }
+            const card = btn.parentElement;
+            const page = card.closest('.page-container');
+            card.remove();
+            learningItemCount--;
+            
+            // If page is empty (except for header bits), remove it
+            const items = page.querySelectorAll('.card');
+            if (items.length === 0 && learningItemCount > 0) {
+                page.remove();
+            }
+        }
+
+
+        function syncFields(field, val) {
+            if (field === 'date') {
+                document.querySelectorAll('.sync-date').forEach(t => t.innerText = val);
+                document.getElementById('input-date').value = val;
+            }
+            if (field === 'mentor') document.getElementById('input-mentor').value = val;
+            if (field === 'name') document.getElementById('input-name').value = val;
+        }
+
+        function syncSidebar(field, val) {
+            if (field === 'name') {
+                document.querySelector('#page-cover .info-input').value = val;
+            } else if (field === 'grade') {
+                document.querySelectorAll('#page-cover .info-input')[1].value = val;
+            } else if (field === 'date') {
+                document.getElementById('report-date').value = val;
+                syncFields('date', val);
+            } else if (field === 'mentor') {
+                document.getElementById('report-mentor').value = val;
+            }
+        }
+
+
+        function updateReport() {
+            const status = document.getElementById('attendanceToggle').value;
+            const container = document.getElementById('status-badge-area');
+            container.innerHTML = `<span class="status-stamp stamp-${status.toLowerCase()}" style="padding: 0.5rem 1.5rem; border: 4px double; font-weight: 950; text-transform: uppercase; transform: rotate(-3deg); display: inline-block; font-size: 0.9rem;">${status}</span>`;
+            document.getElementById('reportBody').style.display = (status === 'Absent' ? 'none' : 'block');
+        }
+
+        async function downloadPDF() {
+            const btn = document.getElementById('downloadBtn');
+            const originalText = btn.innerHTML;
+            
+            const { jsPDF } = window.jspdf || window;
+            if (!window.html2canvas || !jsPDF) {
+                alert('PDF engine is still initializing. Please wait a moment.');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span>Processing PDF...</span>';
+
+                // Toggle Clean Capture state
+                document.body.classList.add('is-exporting');
+
+                // Wait for layout to settle
+                await new Promise(r => setTimeout(r, 200));
+
+                const pages = document.querySelectorAll('.page-container');
+                const studentName = (document.querySelector('.info-input')?.value || 'Student').trim();
+                const fileName = `FSPW_MAP_${studentName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+                // Initialize jsPDF with better fallback
+                const { jsPDF } = window.jspdf || window;
+                if (!jsPDF) throw new Error('jsPDF library not found. Please check your internet connection.');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                for (let i = 0; i < pages.length; i++) {
+                    const canvas = await html2canvas(pages[i], {
+                        scale: 2,
+                        useCORS: false,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                }
+
+                pdf.save(fileName);
+
+                // WhatsApp Sharing Flow
+                const whatsappNum = document.getElementById('input-whatsapp').value.replace(/\D/g, '');
+                if (whatsappNum) {
+                    const mentorName = document.getElementById('input-mentor').value;
+                    const dateStr = document.getElementById('input-date').value;
+                    
+                    const message = `*FSPW Daily Insight Report*\n\n` +
+                                  `Hello! Here is today's report for *${studentName}*.\n\n` +
+                                  `Please find the generated PDF attached in this message.\n\n` +
+                                  `Thank you for trusting us to be part of *${studentName}'s* academic journey !\n\n` +
+                                  `Warm regards,\n` +
+                                  `*FSPW Team*`;
+                    
+                    const waUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(message)}`;
+                    
+                    // Small delay to ensure download starts first
+                    setTimeout(() => {
+                        window.open(waUrl, '_blank');
+                        alert('WhatsApp opened! Please manually attach the downloaded PDF to your message.');
+                    }, 1000);
+                }
+
+                // Restore state
+                document.body.classList.remove('is-exporting');
+                
+                btn.innerHTML = '<span>Download Complete!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
+
+            } catch (err) {
+                console.error('PDF Export Error:', err);
+                alert(`Export failed: ${err.message || 'Unknown Error'}. Please try using Ctrl+P (Print to PDF) as a fallback.`);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        initReport();
+    </script>
+</body>
+</html>
+
