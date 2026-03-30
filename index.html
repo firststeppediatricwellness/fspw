@@ -7965,6 +7965,34 @@
                             </div>
                         </div>
 
+                        <!-- Product: Helping Hands -->
+                        <div
+                            class="group relative bg-gray-900/40 backdrop-blur-2xl border border-white/5 rounded-none p-8 hover:bg-gray-800/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(244,63,94,0.15)] flex flex-col items-center text-center overflow-hidden h-full">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            </div>
+                            <div class="relative z-10 flex flex-col items-center w-full">
+                                <div
+                                    class="w-20 h-20 bg-rose-500/10 rounded-3xl flex items-center justify-center mb-6 text-rose-400 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-[0_0_30px_rgba(244,63,94,0.2)] border border-rose-500/20">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <h3
+                                    class="text-2xl font-bold text-white group-hover:text-rose-400 transition-colors mb-2 tracking-tight">
+                                    Helping Hands</h3>
+                                <div
+                                    class="max-h-0 opacity-0 group-hover:max-h-[500px] group-hover:opacity-100 transition-all duration-700 ease-in-out overflow-hidden mt-2">
+                                    <p class="text-gray-300 text-sm leading-relaxed px-2">Helping Hands is our outreach program focused on suicide awareness, offering hope, guidance, and a safe space for those going through difficult times. We aim to be a compassionate presence, reminding people they are not alone.</p>
+                                </div>
+                                <div class="mt-4 group-hover:hidden transition-all duration-300">
+                                    <span class="text-xs uppercase tracking-widest text-rose-500/60 font-bold">Compassionate Outreach</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Product 12: KinderCare -->
                         <div
                             class="group relative bg-gray-900/40 backdrop-blur-2xl border border-white/5 rounded-none p-8 hover:bg-gray-800/60 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] flex flex-col items-center text-center overflow-hidden h-full">
@@ -14594,6 +14622,11 @@
     <script>
         const mapTooltip = document.getElementById('map-tooltip');
         const fspwMapObj = document.getElementById('fspw-world-map');
+
+        // Hide tooltip on scroll
+        window.addEventListener('scroll', () => {
+            mapTooltip.style.opacity = '0';
+        });
         
         window.addEventListener('message', (e) => {
             if (e.data && e.data.action === 'move') {
